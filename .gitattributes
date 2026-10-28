@@ -1,0 +1,20 @@
+# Texto portable entre Windows, Linux y macOS.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=lf
+*.php text diff=php
+*.blade.php text diff=html
+*.md text diff=markdown
+*.svg text
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
+*.zip binary
