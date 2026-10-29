@@ -1,0 +1,168 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header">
+    <div class="bar">
+      <a routerLink="/" aria-label="Volver" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </a>
+      <span class="step-label">{{paso}} de 4</span>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="wizard-wrap">
+    
+    <!-- BARRA DE PROGRESO -->
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="(paso / 4) * 100"></div>
+    </div>
+
+    <!-- ================= PASO 1 ================= -->
+    <div class="step-view" *ngIf="paso === 1">
+      <h1 class="title">¿Qué quieres limpiar?</h1>
+      
+      <div class="category-list">
+        <button class="cat-card" *ngFor="let cat of categorias" (click)="paso = 2">
+          <div class="cat-icon">{{cat.icono}}</div>
+          <div class="cat-text">
+            <h3>{{cat.nombre}}</h3>
+            <p>{{cat.desc}}</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= PASO 2 ================= -->
+    <div class="step-view" *ngIf="paso === 2">
+      <h1 class="title">Cuéntanos del mueble</h1>
+      
+      <div class="section-block">
+        <h4 class="sec-title">Tipo de mueble</h4>
+        <div class="options-stack">
+          <button class="opt-card" [class.active]="tipoMueble === 'Sofá 2 puestos'" (click)="tipoMueble = 'Sofá 2 puestos'">Sofá 2 puestos</button>
+          <button class="opt-card" [class.active]="tipoMueble === 'Sofá 3 puestos'" (click)="tipoMueble = 'Sofá 3 puestos'">Sofá 3 puestos</button>
+          <button class="opt-card" [class.active]="tipoMueble === 'Butaca'" (click)="tipoMueble = 'Butaca'">Butaca</button>
+          <button class="opt-card" [class.active]="tipoMueble === 'Ottoman'" (click)="tipoMueble = 'Ottoman'">Ottoman</button>
+          <button class="opt-card" [class.active]="tipoMueble === 'Tapicería de vehículo'" (click)="tipoMueble = 'Tapicería de vehículo'">Tapicería de vehículo</button>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <h4 class="sec-title">Material</h4>
+        <div class="options-stack">
+          <button class="opt-card" [class.active]="material === 'Tela'" (click)="material = 'Tela'">Tela</button>
+          <button class="opt-card" [class.active]="material === 'Cuero'" (click)="material = 'Cuero'">Cuero</button>
+          <button class="opt-card" [class.active]="material === 'Microfibra'" (click)="material = 'Microfibra'">Microfibra</button>
+        </div>
+        <p class="alert-text">Los muebles de madera sin tapizar no se limpian con vapor.</p>
+      </div>
+
+      <div class="section-block">
+        <h4 class="sec-title">Cantidad</h4>
+        <div class="qty-row">
+          <div class="qty-info">
+            <strong>{{tipoMueble}}, {{material.toLowerCase()}}</strong>
+          </div>
+          <div class="qty-controls">
+            <button (click)="cantidad = cantidad > 1 ? cantidad - 1 : 1">−</button>
+            <span>{{cantidad}}</span>
+            <button (click)="cantidad = cantidad + 1">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subtotal-box">
+        <span>Subtotal estimado</span>
+        <strong>${{subtotal.toFixed(2)}}</strong>
+      </div>
+
+      <button class="add-another">+ Agregar otro</button>
+    </div>
+
+    <!-- ================= PASO 3 ================= -->
+    <div class="step-view" *ngIf="paso === 3">
+      <h1 class="title">¿Dónde y cuándo?</h1>
+
+      <div class="section-block">
+        <h4 class="sec-title">Zona</h4>
+        <select class="input-field">
+          <option>Santa Tecla</option>
+          <option>San Salvador Centro</option>
+          <option>Soyapango</option>
+        </select>
+        <div class="check-row">
+          <span class="check-icon">✓</span> Domicilio gratis en esta zona
+        </div>
+      </div>
+
+      <div class="section-block">
+        <h4 class="sec-title">Dirección</h4>
+        <input type="text" class="input-field" placeholder="Colonia, calle y número de casa">
+      </div>
+
+      <div class="section-block">
+        <h4 class="sec-title">Fecha preferida</h4>
+        <div class="scroll-x">
+          <button class="date-card">Lun 19</button>
+          <button class="date-card">Mar 20</button>
+          <button class="date-card active">Mié 21</button>
+          <button class="date-card">Jue 22</button>
+          <button class="date-card">Vie 23</button>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <h4 class="sec-title">Hora de inicio <small>(7:30 a.m. a 5:00 p.m.)</small></h4>
+        <div class="scroll-x">
+          <button class="date-card active">7:30</button>
+          <button class="date-card">10:00</button>
+          <button class="date-card">12:30</button>
+          <button class="date-card">2:00</button>
+        </div>
+      </div>
+
+      <div class="upload-box">
+        <span>📷 Agregar fotos (opcional)</span>
+      </div>
+    </div>
+
+    <!-- ================= PASO 4 ================= -->
+    <div class="step-view" *ngIf="paso === 4">
+      <h1 class="title">Tu resumen</h1>
+      
+      <h4 class="sec-title">Lo que vamos a limpiar</h4>
+      <div class="summary-item">
+        <div>
+          <strong>{{tipoMueble}}</strong>
+          <p>{{material}} · {{cantidad}} unidades</p>
+        </div>
+        <span>${{subtotal.toFixed(2)}}</span>
+      </div>
+
+      <h4 class="sec-title mt-6">Dónde y cuándo</h4>
+      <div class="summary-item">
+        <div>
+          <strong>Santa Tecla</strong>
+          <p>Col. Utila, calle 5, casa 12</p>
+          <p>Miércoles 21 de octubre · 10:00 a.m.</p>
+        </div>
+      </div>
+
+      <div class="totals-box">
+        <div class="t-row"><span>Subtotal</span><span>${{subtotal.toFixed(2)}}</span></div>
+        <div class="t-row"><span>Recargo por zona</span><span>$0.00 · gratis</span></div>
+        <div class="t-row total"><span>Total estimado</span><strong>${{total.toFixed(2)}}</strong></div>
+      </div>
+
+      <p class="footer-note">Es un precio estimado. Lo confirmamos contigo antes de ir a tu casa.</p>
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- FOOTER FLOTANTE -->
+<div class="floating-footer">
+  <button *ngIf="paso > 1" class="btn-back" (click)="pasoAnterior()">Atrás</button>
+  <button *ngIf="paso < 4" class="btn-next" (click)="siguientePaso()">Continuar</button>
+  <button *ngIf="paso === 4" class="btn-next" routerLink="/pedidos">Confirmar pedido</button>
+</div>

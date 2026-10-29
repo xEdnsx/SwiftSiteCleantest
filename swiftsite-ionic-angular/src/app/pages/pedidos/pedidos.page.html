@@ -1,0 +1,83 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header">
+    <div class="bar">
+      <h1 class="page-title">Mis pedidos</h1>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="wrap">
+    
+    <!-- TABS -->
+    <div class="tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'activos'" 
+        (click)="cambiarTab('activos')">
+        Activos
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'historial'" 
+        (click)="cambiarTab('historial')">
+        Historial
+      </button>
+    </div>
+
+    <!-- LISTA DE PEDIDOS ACTIVOS -->
+    <div class="list" *ngIf="tabActiva === 'activos'">
+      <article class="card" *ngFor="let p of pedidosActivos">
+        <div class="card-header">
+          <span class="order-id">Pedido {{p.id}}</span>
+          <span class="badge" 
+                [ngClass]="{
+                  'badge-cotizado': p.estado === 'Cotizado',
+                  'badge-confirmado': p.estado === 'Confirmado',
+                  'badge-proceso': p.estado === 'En proceso',
+                  'badge-finalizado': p.estado === 'Finalizado'
+                }">
+            {{p.estado}}
+          </span>
+        </div>
+        
+        <h2 class="card-title">{{p.titulo}}</h2>
+        <p class="card-meta">{{p.fecha}} · {{p.zona}}</p>
+
+        <!-- Línea de progreso de 4 pasos -->
+        <div class="timeline">
+          <div class="step" [class.done]="p.progreso >= 1">Cotizado</div>
+          <div class="step" [class.done]="p.progreso >= 2">Confirmado</div>
+          <div class="step" [class.done]="p.progreso >= 3">En proceso</div>
+          <div class="step" [class.done]="p.progreso >= 4">Finalizado</div>
+        </div>
+
+        <div class="card-footer">
+          <span class="total">${{p.total.toFixed(2)}}</span>
+          <button class="btn-detalle">Ver detalle</button>
+        </div>
+      </article>
+    </div>
+
+    <!-- LISTA DE PEDIDOS EN HISTORIAL -->
+    <div class="list" *ngIf="tabActiva === 'historial'">
+      <article class="card" *ngFor="let p of pedidosHistorial">
+        <div class="card-header">
+          <span class="order-id">Pedido {{p.id}}</span>
+          <span class="badge badge-finalizado">{{p.estado}}</span>
+        </div>
+        
+        <h2 class="card-title">{{p.titulo}}</h2>
+        <p class="card-meta">{{p.fecha}} · {{p.zona}}</p>
+        <span class="total">${{p.total.toFixed(2)}}</span>
+
+        <div class="historial-actions">
+          <button class="btn-outline" *ngIf="!p.valorado">Valorar</button>
+          <span class="status-text" *ngIf="p.valorado">Tu valoración: En revisión</span>
+          <button class="btn-outline">Reportar problema</button>
+        </div>
+      </article>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,0 +1,64 @@
+$ink: #0B1F3A;
+$aqua: #00E5FF;
+$bone: #F2F8FC;
+$blue: #1E5BD8;
+$aqua-suave: #D9F7FA;
+$cielo: #9AF3FF;
+
+/* HEADER */
+.header { --background: #{$bone}; --border-color: transparent; }
+.bar { max-width: 680px; margin: auto; padding: 15px 24px; }
+.page-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: 800; color: $ink; margin: 0; }
+
+/* CONTENEDOR */
+.wrap { max-width: 680px; margin: auto; padding: 0 24px 40px; }
+
+/* TABS (Activos / Historial) */
+.tabs { display: flex; border-bottom: 2px solid rgba(11, 31, 58, 0.1); margin-bottom: 24px; }
+.tab-btn { 
+  background: transparent; 
+  border: none; 
+  font-family: 'Inter', sans-serif; 
+  font-size: 16px; 
+  font-weight: 600; 
+  color: rgba(11, 31, 58, 0.5); 
+  padding: 12px 16px; 
+  border-bottom: 3px solid transparent; 
+  margin-bottom: -2px; 
+  transition: all 0.2s;
+}
+.tab-btn.active { color: $ink; border-bottom-color: $aqua; }
+
+/* TARJETAS */
+.list { display: flex; flex-direction: column; gap: 20px; }
+.card { background: white; border: 2.5px solid $ink; border-radius: 20px; padding: 20px; box-shadow: 4px 4px 0 $ink; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.order-id { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: rgba(11, 31, 58, 0.6); }
+.card-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; color: $ink; margin: 0 0 6px 0; line-height: 1.2; }
+.card-meta { font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(11, 31, 58, 0.74); margin: 0 0 16px 0; }
+
+/* BADGES (Etiquetas de estado) */
+.badge { padding: 6px 12px; border-radius: 99px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; }
+.badge-cotizado { background: white; border: 1.5px dashed $ink; color: $ink; }
+.badge-confirmado { background: $aqua-suave; border: 1.5px solid $blue; color: $blue; }
+.badge-proceso { background: $cielo; border: 1.5px solid $ink; color: $ink; }
+.badge-finalizado { background: $ink; border: 1.5px solid $ink; color: white; }
+
+/* LÍNEA DE TIEMPO (Progreso) */
+.timeline { display: flex; justify-content: space-between; margin: 20px 0 24px; position: relative; }
+.timeline::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(11, 31, 58, 0.1); z-index: 1; transform: translateY(-50%); }
+.step { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: rgba(11, 31, 58, 0.4); background: white; padding: 0 8px; z-index: 2; position: relative; }
+.step.done { color: $ink; }
+.step.done::before { content: '•'; display: block; text-align: center; font-size: 24px; line-height: 0; color: $aqua; margin-bottom: 4px; }
+
+/* FOOTER DE LA TARJETA */
+.card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid rgba(11, 31, 58, 0.1); padding-top: 16px; }
+.total { font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; color: $ink; }
+.btn-detalle { background: $aqua; border: 2px solid $ink; border-radius: 99px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: $ink; box-shadow: 2px 2px 0 $ink; transition: all 0.1s; }
+.btn-detalle:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0 $ink; }
+
+/* SECCIÓN HISTORIAL */
+.historial-actions { display: flex; align-items: center; gap: 12px; margin-top: 16px; border-top: 1.5px solid rgba(11, 31, 58, 0.1); padding-top: 16px; }
+.btn-outline { background: white; border: 2px solid $ink; border-radius: 99px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; color: $ink; transition: all 0.1s; }
+.btn-outline:active { background: $bone; }
+.status-text { font-family: 'Inter', sans-serif; font-size: 13px; color: $blue; font-weight: 600; }

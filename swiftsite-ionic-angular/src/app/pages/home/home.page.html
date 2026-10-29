@@ -1,9 +1,117 @@
- <ion-header class="ion-no-border"><ion-toolbar class="header"><div class="bar"><a routerLink="/" aria-label="Inicio"><img class="logo" src="assets/logos/logo-claro.svg" alt="SwiftSite Clean" /></a><nav><a href="#servicios" (click)="scrollToSection($event, 'servicios')">Servicios</a><a href="#proceso" (click)="scrollToSection($event, 'proceso')">Cómo funciona</a><a class="navcta" [href]="whatsappUrl()" [attr.aria-disabled]="!whatsappDisponible" [attr.tabindex]="whatsappDisponible ? null : -1" target="_blank" rel="noopener">Cotizar</a></nav></div></ion-toolbar></ion-header>
- <ion-content [fullscreen]="true"><div class="site"><p *ngIf="!whatsappDisponible" class="contact-notice" role="status">El contacto por WhatsApp todavia no esta disponible.</p>
-  <section class="hero wrap"><div class="hero-copy"><div class="eyebrow">✦ Servicio profesional a domicilio ✦</div><h1>Vuelve a estrenar <span>tu hogar.</span></h1><p>Devolvemos la frescura a tus muebles, colchones, sillas y baños con limpieza profunda a domicilio.</p><a class="primary" [href]="whatsappUrl()" [attr.aria-disabled]="!whatsappDisponible" [attr.tabindex]="whatsappDisponible ? null : -1" target="_blank" rel="noopener">Cotiza por WhatsApp ↗</a><div class="hero-tags"><span>✓ Vapor</span><span>✓ Succión</span><span>✓ Limpieza profesional</span></div></div><div class="hero-visual"><div class="comparison"><img class="compare-base" [src]="foto(par.despues)" [alt]="'Después de limpiar '+par.nombre" /><img class="compare-before" [src]="foto(par.antes)" [style.clip-path]="clip" [alt]="'Antes de limpiar '+par.nombre" /><div class="compare-divider" [style.left.%]="porcentaje"><span>↔</span></div><span class="tag before">ANTES</span><span class="tag after">DESPUÉS</span></div><ion-range aria-label="Mover comparador antes y después" [min]="0" [max]="100" [value]="porcentaje" (ionInput)="onRange($event)"></ion-range><div class="compare-nav"><button *ngFor="let item of comparaciones;index as i" (click)="seleccionar(i)" [class.active]="actual===i">{{item.nombre}}</button></div></div></section>
-  <section id="servicios" class="services"><div class="wrap"><div class="section-label">01 · Nuestros servicios</div><h2>Tu hogar merece <em>un nuevo comienzo.</em></h2><p class="lede">Cada espacio tiene sus necesidades. Trabajamos con limpieza a vapor, extracción y desinfección.</p><div class="service-grid"><article class="service-card" *ngFor="let s of servicios"><div class="service-image" *ngIf="s.foto"><img [src]="foto(s.foto)" [alt]="s.nombre" /></div><div class="service-symbol" *ngIf="!s.foto">✳</div><div class="card-body"><h3>{{s.nombreCompleto}}</h3><p>{{s.nota}}</p><div class="chips"><span *ngFor="let item of s.equipo">{{item}}</span></div><a class="small-button" [href]="whatsappUrl(s.nombre)" [attr.aria-disabled]="!whatsappDisponible" [attr.tabindex]="whatsappDisponible ? null : -1" target="_blank" rel="noopener">Cotizar {{s.nombre.toLowerCase()}} ↗</a></div></article></div></div></section>
-  <section id="proceso" class="process wrap"><div class="section-label">02 · Cómo funciona</div><h2>Así de sencillo.</h2><div class="steps"><article><strong>01</strong><h3>Escríbenos por WhatsApp</h3><p>Cuéntanos qué necesitas limpiar y dónde te encuentras.</p></article><article><strong>02</strong><h3>Recibe tu cotización</h3><p>Te compartimos la información del servicio y coordinamos una fecha.</p></article><article><strong>03</strong><h3>Atendemos en tu domicilio</h3><p>Realizamos el servicio en tu hogar, con el equipo adecuado.</p></article></div></section>
-  <section class="proof"><div class="wrap"><div class="section-label">03 · Antes y después</div><h2>Resultados que se notan.</h2><div class="mini-gallery"><article *ngFor="let item of comparaciones"><img [src]="foto(item.despues)" [alt]="'Resultado '+item.nombre"/><strong>{{item.nombre}}</strong></article></div><p>Explora el comparador interactivo de la parte superior para ver la diferencia.</p></div></section>
-  <section class="trust" id="confianza"><div class="wrap"><div class="section-label">04 · Antes de escribirnos</div><h2>Lo que quizá quieras saber.</h2><div class="info-grid"><article *ngFor="let item of info"><h3>{{item.titulo}}</h3><p>{{item.texto}}</p><small>{{item.nota}}</small></article></div></div></section>
-  <footer><div class="wrap footer-content"><img src="assets/logos/logo-claro.svg" alt="SwiftSite Clean"/><h2>¿Listo para renovar tus espacios?</h2><a class="primary" [href]="whatsappUrl()" [attr.aria-disabled]="!whatsappDisponible" [attr.tabindex]="whatsappDisponible ? null : -1" target="_blank" rel="noopener">Hablar con un asesor ↗</a><p>SwiftSite Clean · Limpieza profunda a domicilio</p><a routerLink="/privacidad">Política de privacidad</a></div></footer>
- </div></ion-content>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header">
+    <div class="bar">
+      <a routerLink="/" aria-label="Inicio">
+        <img class="logo" src="assets/logos/logo-claro.svg" alt="SwiftSite Clean" />
+      </a>
+      <nav>
+        <a href="#servicios" (click)="scrollToSection($event, 'servicios')">Servicios</a>
+        <a href="#proceso" (click)="scrollToSection($event, 'proceso')">Cómo funciona</a>
+        <a class="navcta" [href]="whatsappUrl()" target="_blank" rel="noopener">Cotizar</a>
+      </nav>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="site">
+    
+    <!-- HERO SECTION -->
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <div class="eyebrow">✦ Servicio profesional a domicilio ✦</div>
+        <h1>Vuelve a estrenar <span>tu hogar.</span></h1>
+        <p>Devolvemos la frescura a tus muebles, colchones, sillas y baños con limpieza profunda a domicilio.</p>
+        
+        <div class="hero-buttons">
+          <a class="primary" [href]="whatsappUrl()" target="_blank" rel="noopener">Cotizar ahora</a>
+          <a class="secondary" [href]="whatsappUrl()" target="_blank" rel="noopener">Hablar con un asesor</a>
+        </div>
+        
+        <div class="hero-tags">
+          <span>✓ Vapor</span>
+          <span>✓ Succión</span>
+          <span>✓ Limpieza profesional</span>
+        </div>
+      </div>
+
+      <!-- COMPARADOR INTERACTIVO (SLIDER) -->
+      <div class="hero-visual">
+        <div class="comparison-container" 
+             (pointerdown)="startDrag($event)" 
+             (pointermove)="onDrag($event)" 
+             (pointerup)="stopDrag()" 
+             (pointercancel)="stopDrag()"
+             (pointerleave)="stopDrag()">
+          
+          <img class="img-after" [src]="foto(par.despues)" alt="Después" />
+          <img class="img-before" [src]="foto(par.antes)" [style.clip-path]="clip" alt="Antes" />
+          
+          <!-- Divisor con la bolita -->
+          <div class="slider-line" [style.left.%]="porcentaje">
+            <div class="slider-button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+          
+          <span class="tag before">ANTES</span>
+          <span class="tag after">DESPUÉS</span>
+        </div>
+
+        <!-- Botones de selección de mueble -->
+        <div class="compare-nav">
+          <button *ngFor="let item of comparaciones; index as i" (click)="seleccionar(i)" [class.active]="actual===i">{{item.nombre}}</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICIOS -->
+    <section id="servicios" class="services">
+      <div class="wrap">
+        <div class="section-label">Nuestros servicios</div>
+        <h2>Tu hogar merece <em>un nuevo comienzo.</em></h2>
+        <p class="lede">Cada espacio tiene sus necesidades. Trabajamos con limpieza a vapor, extracción y desinfección.</p>
+        
+        <div class="service-grid">
+          <article class="service-card" *ngFor="let s of servicios">
+            <div class="icon-box">
+              <span class="service-symbol" *ngIf="!s.foto">✳</span>
+              <img *ngIf="s.foto" [src]="foto(s.foto)" [alt]="s.nombre" />
+            </div>
+            <h3>{{s.nombreCompleto}}</h3>
+            <p>{{s.nota}}</p>
+            <div class="chips">
+              <span *ngFor="let item of s.equipo">{{item}}</span>
+            </div>
+            <a class="small-button" [href]="whatsappUrl(s.nombre)" target="_blank" rel="noopener">Cotizar</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESO -->
+    <section id="proceso" class="process wrap">
+      <div class="section-label">Cómo funciona</div>
+      <h2>Así de sencillo.</h2>
+      <div class="steps">
+        <article>
+          <strong>01</strong>
+          <h3>Escríbenos</h3>
+          <p>Cuéntanos qué necesitas limpiar y dónde te encuentras.</p>
+        </article>
+        <article>
+          <strong>02</strong>
+          <h3>Recibe tu cotización</h3>
+          <p>Te compartimos la información y coordinamos una fecha.</p>
+        </article>
+        <article>
+          <strong>03</strong>
+          <h3>Atendemos</h3>
+          <p>Realizamos el servicio en tu hogar, con el equipo adecuado.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</ion-content>
