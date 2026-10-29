@@ -1,81 +1,146 @@
-$ink: #0B1F3A;
-$aqua: #00E5FF;
-$bone: #F2F8FC;
-$blue: #1E5BD8;
-$aqua-suave: #D9F7FA;
-$cielo: #9AF3FF;
+@use '../../../styles/ssc' as *;
 
-/* Header */
-.header { --background: #{$bone}; --border-color: transparent; }
-.bar { max-width: 680px; margin: auto; padding: 10px 24px; display: flex; align-items: center; justify-content: center; position: relative; }
-.back-btn { position: absolute; left: 20px; color: $ink; width: 24px; height: 24px; }
-.step-label { font-family: 'Inter', sans-serif; font-weight: 600; color: $ink; font-size: 14px; }
+ion-content { --background: #{$bone}; }
+.screen { @include screen(17px); }
 
-/* Contenedor */
-.wizard-wrap { max-width: 680px; margin: auto; padding: 20px 24px 100px 24px; }
+// ----- Encabezado y progreso -----
+.top { display: flex; align-items: center; gap: 12px; }
+.back { @include back-button; padding: 0; }
+.step-label { font-weight: 600; font-size: 14px; color: $blue; line-height: 16px; }
+h1 { margin: 0; @include display(31px, 34px); }
+h2 { margin: 22px 0 0; @include display(21px); letter-spacing: -0.02em; }
 
-/* Barra de progreso */
-.progress-track { height: 6px; background: rgba(11, 31, 58, 0.1); border-radius: 99px; margin-bottom: 30px; overflow: hidden; }
-.progress-fill { height: 100%; background: $aqua; transition: width 0.3s ease; }
+.progress {
+  margin-top: 14px;
+  display: flex;
+  gap: 7px;
+  span { flex: 1; height: 10px; border: 2px solid $ink; border-radius: 999px; background: #fff; &.done { background: $aqua; } }
+}
 
-/* Títulos */
-.title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; color: $ink; margin: 0 0 24px 0; line-height: 1.1; }
-.sec-title { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; color: $ink; margin: 0 0 12px 0; }
-.mt-6 { margin-top: 24px; }
+// ----- Paso 1 -----
+.categorias { margin-top: 20px; display: flex; flex-direction: column; gap: 13px; }
+.cat {
+  width: calc(100% - 4px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px 14px 14px;
+  text-align: left;
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: 24px;
+  box-shadow: 4px 4px 0 $ink;
+  color: $ink;
+  font-family: inherit;
+  cursor: pointer;
+  .cat-icon { width: 62px; height: 62px; flex: none; display: flex; align-items: center; justify-content: center; background: $sol; border: 2px solid $ink; border-radius: 18px; }
+  .cat-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .cat-text strong { font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
+  .cat-text span { font-size: 16px; line-height: 21px; color: $gris; margin-top: 2px; }
+  .radio { width: 36px; height: 36px; flex: none; display: flex; align-items: center; justify-content: center; border: 2px solid $ink; border-radius: 50%; background: #fff; color: #fff; }
+  &.selected {
+    background: $aqua-suave;
+    border: 2.5px solid $blue;
+    box-shadow: 4px 4px 0 $blue;
+    .cat-icon { background: $aqua; }
+    .radio { background: $blue; border-color: $blue; }
+  }
+}
 
-/* PASO 1: Tarjetas de categoría */
-.category-list { display: flex; flex-direction: column; gap: 16px; }
-.cat-card { display: flex; align-items: center; gap: 16px; background: white; border: 2.5px solid $ink; border-radius: 20px; padding: 20px; text-align: left; transition: all 0.1s; width: 100%; }
-.cat-card:active { background: $bone; transform: scale(0.98); }
-.cat-icon { width: 64px; height: 64px; background: $cielo; border: 2px solid $ink; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
-.cat-text h3 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; color: $ink; margin: 0 0 4px 0; }
-.cat-text p { font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(11, 31, 58, 0.74); margin: 0; line-height: 1.4; }
+// ----- Paso 2 -----
+.pills { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.pill { @include pill(); }
 
-/* PASO 2: Opciones y contadores */
-.section-block { margin-bottom: 28px; }
-.options-stack { display: flex; flex-direction: column; gap: 10px; }
-.opt-card { background: white; border: 2px solid $ink; border-radius: 14px; padding: 16px; text-align: left; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; color: $ink; transition: all 0.1s; width: 100%; }
-.opt-card.active { background: $aqua-suave; border-color: $blue; color: $blue; font-weight: 700; box-shadow: inset 0 0 0 1px $blue; }
-.alert-text { font-family: 'Inter', sans-serif; font-size: 12px; color: #a12222; margin-top: 10px; }
+.materiales { margin-top: 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.material {
+  height: 76px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: #fff; border: 2px solid $ink; border-radius: 18px;
+  font-family: inherit; font-size: 16px; font-weight: 500; color: $ink; cursor: pointer;
+  &.selected { background: $aqua-suave; border: 2.5px solid $blue; }
+}
+.muestra { width: 34px; height: 34px; border: 2px solid $ink; border-radius: 9px; }
+.muestra.tela { background: repeating-linear-gradient(135deg, #C9DDF7 0 5px, #fff 5px 10px); }
+.muestra.cuero { background: #8B4A2B; }
+.muestra.microfibra { background: radial-gradient(circle at 35% 30%, #EDE4D3 0, #CBBFA8 70%); }
+.hint { margin: 8px 0 0; font-size: 15px; line-height: 20px; color: $gris; }
 
-.qty-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 2px solid $ink; border-radius: 16px; padding: 16px; }
-.qty-info strong { font-family: 'Inter', sans-serif; font-size: 15px; color: $ink; }
-.qty-controls { display: flex; align-items: center; gap: 16px; }
-.qty-controls button { width: 40px; height: 40px; border-radius: 50%; background: $bone; border: 2px solid $ink; font-size: 20px; font-weight: bold; color: $ink; display: flex; align-items: center; justify-content: center; }
-.qty-controls span { font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; color: $ink; }
+.cantidad {
+  margin-top: 12px; min-height: 67px; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  @include card(20px);
+  > span { font-size: 17px; }
+}
+.stepper {
+  display: flex; align-items: center; gap: 14px;
+  button { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #fff; border: 2px solid $ink; border-radius: 50%; color: $ink; cursor: pointer; padding: 0; &.plus { background: $aqua; } }
+  .num { min-width: 14px; text-align: center; @include display(28px); }
+}
 
-.subtotal-box { display: flex; justify-content: space-between; align-items: center; background: $aqua-suave; border: 2px solid $ink; border-radius: 16px; padding: 20px; margin-top: 30px; }
-.subtotal-box span { font-family: 'Inter', sans-serif; font-weight: 600; color: $ink; }
-.subtotal-box strong { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; color: $ink; }
-.add-another { background: transparent; border: none; font-family: 'Inter', sans-serif; font-weight: 700; color: $blue; margin-top: 16px; padding: 0; font-size: 15px; }
+.subtotal {
+  margin-top: 16px; height: 60px; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: $ink; border-radius: 20px; color: #fff;
+  span { font-size: 16px; color: $menu; }
+  strong { @include display(32px); letter-spacing: -0.02em; color: $cielo; }
+}
 
-/* PASO 3: Inputs y Fechas */
-.input-field { width: 100%; background: white; border: 2px solid $ink; border-radius: 12px; padding: 14px 16px; font-family: 'Inter', sans-serif; font-size: 16px; color: $ink; appearance: none; }
-.check-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-family: 'Inter', sans-serif; font-size: 14px; color: $blue; font-weight: 600; }
-.check-icon { background: $aqua; border: 2px solid $ink; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: $ink; }
+// ----- Paso 3 -----
+.lbl { margin-top: 18px; font-weight: 600; font-size: 17px; small { font-weight: 400; font-size: 15px; color: $gris; } }
+.select {
+  position: relative; margin-top: 8px;
+  select { @include field(52px); appearance: none; padding-right: 44px; font-size: 20px; font-weight: 500; }
+  ssc-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+}
+.zona-chip {
+  margin-top: 8px; align-self: flex-start; min-height: 27px; padding: 0 11px 0 9px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: $aqua-suave; border: 1.5px solid $blue; border-radius: 999px;
+  font-size: 14px; font-weight: 600; color: $blue-dark;
+  &.recargo { background: #fff3cd; border-color: $ink; color: $ink; padding-left: 11px; }
+}
+.direccion { @include field(72px); margin-top: 8px; padding: 12px 18px; font-size: 19px; line-height: 24px; resize: none; }
 
-.scroll-x { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
-.scroll-x::-webkit-scrollbar { display: none; }
-.date-card { flex-shrink: 0; background: white; border: 2px solid $ink; border-radius: 12px; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: $ink; }
-.date-card.active { background: $aqua; color: $ink; }
+.dias { margin-top: 8px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.dia {
+  height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #fff; border: 2px solid $ink; border-radius: 16px; font-family: inherit; font-size: 15px; color: $ink; cursor: pointer; padding: 0;
+  strong { @include display(25px, 28px); letter-spacing: 0; }
+  &.active { background: $ink; color: #fff; strong { color: $cielo; } }
+}
+.horas { margin-top: 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; .pill { justify-content: center; padding: 0; font-size: 18px; } }
 
-.upload-box { border: 2px dashed $ink; border-radius: 12px; padding: 24px; text-align: center; font-family: 'Inter', sans-serif; font-weight: 600; color: $ink; margin-top: 30px; }
+.fotos {
+  margin-top: 16px; height: 56px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: transparent; border: 2px dashed $ink; border-radius: 18px;
+  font-family: inherit; font-size: 18px; font-weight: 600; color: $ink; cursor: pointer;
+}
 
-/* PASO 4: Resumen */
-.summary-item { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid rgba(11, 31, 58, 0.1); padding-bottom: 16px; margin-bottom: 16px; }
-.summary-item strong { font-family: 'Inter', sans-serif; font-size: 16px; color: $ink; }
-.summary-item p { font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(11, 31, 58, 0.74); margin: 4px 0; }
-.summary-item span { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; color: $ink; }
+// ----- Paso 4 -----
+.panel { margin-top: 20px; @include card(22px); h2 { margin: 0; padding: 14px 18px 12px; font-size: 20px; } }
+.panel.donde { margin-top: 14px; padding: 14px 18px; h2 { padding: 0; font-size: 21px; } }
+.linea { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid $linea; }
+.linea-nombre { font-family: $font-ui; font-weight: 700; font-size: 19px; line-height: 24px; }
+.linea-detalle { font-size: 15px; color: $gris; }
+.linea-precio { @include display(23px); letter-spacing: -0.02em; }
+.dato { margin-top: 10px; display: flex; align-items: center; gap: 12px; font-size: 17px; line-height: 22px; & + .dato { margin-top: 8px; } ssc-icon { flex: none; } }
 
-.totals-box { background: $bone; border: 2px solid $ink; border-radius: 16px; padding: 20px; margin-top: 24px; }
-.t-row { display: flex; justify-content: space-between; font-family: 'Inter', sans-serif; font-size: 15px; color: rgba(11, 31, 58, 0.74); margin-bottom: 12px; }
-.t-row.total { border-top: 2px dashed rgba(11, 31, 58, 0.2); padding-top: 16px; margin-bottom: 0; color: $ink; font-weight: 700; }
-.t-row.total strong { font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; font-weight: 800; }
-.footer-note { font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(11, 31, 58, 0.6); text-align: center; margin-top: 20px; line-height: 1.5; }
+.totales {
+  margin-top: 14px; padding: 16px 18px; background: $ink; border-radius: 22px; color: #fff;
+  .t-row { display: flex; justify-content: space-between; font-size: 17px; color: $menu; & + .t-row { margin-top: 6px; } }
+  .t-total {
+    margin-top: 12px; padding-top: 14px; border-top: 1px solid #3B506B;
+    display: flex; align-items: center; justify-content: space-between;
+    span { font-family: $font-ui; font-weight: 700; font-size: 20px; }
+    strong { @include display(46px, 46px); color: $cielo; }
+  }
+}
+.nota { margin: 14px 0 0; font-size: 16px; line-height: 21px; color: $gris; }
 
-/* Footer Flotante */
-.floating-footer { position: fixed; bottom: 0; left: 0; right: 0; background: $bone; border-top: 2px solid $ink; padding: 16px 24px; display: flex; gap: 12px; z-index: 100; }
-.btn-back, .btn-next { flex: 1; padding: 16px; border-radius: 99px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; border: 2.5px solid $ink; transition: all 0.1s; display: flex; justify-content: center; align-items: center; }
-.btn-back { background: white; color: $ink; }
-.btn-next { background: $ink; color: white; }
-.btn-back:active, .btn-next:active { transform: scale(0.96); }
+// ----- Acciones -----
+.acciones { margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+.par { display: flex; gap: 10px; > * { flex: 1; width: auto; } .btn-primary { margin-right: 4px; width: auto; } }
+.btn-primary { @include btn-primary(); }
+.btn-sec { @include btn-secondary(58px, 19px); }
+.asesor { height: 54px; font-size: 18px; }

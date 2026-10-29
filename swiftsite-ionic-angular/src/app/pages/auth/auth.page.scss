@@ -1,0 +1,75 @@
+@use '../../../styles/ssc' as *;
+
+ion-content { --background: #{$bone}; }
+
+.screen { @include screen(28px); }
+
+.logo {
+  align-self: center;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $aqua-suave;
+  border: 2px solid $ink;
+  border-radius: 22px;
+}
+
+h1 { margin: 14px 0 0; text-align: center; @include display(35px, 40px); }
+.lead { margin: 8px 0 0; text-align: center; font-size: 17px; line-height: 22px; color: $gris; }
+
+.segmented {
+  margin-top: 20px;
+  height: 56px;
+  padding: 5px;
+  display: flex;
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: 999px;
+  a {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 500;
+    color: $ink;
+    text-decoration: none;
+    &.active { background: $ink; color: #fff; font-weight: 600; }
+  }
+}
+
+form { display: flex; flex-direction: column; }
+
+label { margin-top: 16px; font-weight: 600; font-size: 17px; }
+.optional { font-weight: 400; color: $gris; }
+
+.field { @include field(); margin-top: 8px; }
+
+.password {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 0 18px;
+  input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 18px; color: $ink; padding: 0; }
+  &:focus-within { border-color: $blue; }
+}
+.eye { background: none; border: 0; padding: 0; color: $ink; cursor: pointer; display: flex; }
+
+.error { margin: 12px 0 0; color: $error; font-weight: 500; }
+
+.btn-primary { @include btn-primary(); margin-top: 20px; }
+.btn-secondary { @include btn-secondary(55px); }
+
+.divider {
+  margin: 18px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+  color: $gris;
+  &::before, &::after { content: ''; flex: 1; height: 1px; background: #B8C4D2; }
+}
+.note { margin: 14px 0 0; text-align: center; font-size: 16px; line-height: 21px; color: $gris; }

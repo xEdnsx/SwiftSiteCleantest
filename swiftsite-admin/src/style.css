@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Caveat:wght@600;700&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:ital,wght@1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,700;1,700;1,800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -11,11 +11,21 @@
   --color-gota: #1E5BD8;
   --color-gota-profunda: #0F3FA8;
   --color-sol: #FFD23F;
+  /* Extras tomados de los mockups */
+  --color-gris: #4A5A70;
+  --color-linea: #DCE4EC;
+  --color-noche-1: #164AA9;
+  --color-noche-2: #0E5A8E;
+  --color-menu: #D6E3F2;
 
   --font-bricolage: "Bricolage Grotesque", sans-serif;
   --font-inter: "Inter", sans-serif;
   --font-caveat: "Caveat", cursive;
   --font-jakarta: "Plus Jakarta Sans", sans-serif;
+
+  /* Sombra dura del estilo neo-brutalista */
+  --shadow-brutal: 4px 4px 0 #0B1F3A;
+  --shadow-brutal-sm: 2px 2px 0 #0B1F3A;
 }
 
 @layer base {
@@ -25,11 +35,17 @@
     font-family: var(--font-inter);
     -webkit-font-smoothing: antialiased;
   }
+  /* Títulos y cifras: Bricolage con el eje óptico máximo, como en los mockups */
+  .font-bricolage {
+    font-variation-settings: 'opsz' 96;
+    letter-spacing: -0.03em;
+  }
 }
 
 @layer components {
+  /* ---------- Botones ---------- */
   .btn-primario {
-    @apply bg-aqua text-tinta font-inter font-semibold border-2 border-tinta rounded-full min-h-[52px] px-6 flex items-center justify-center transition-all duration-200;
+    @apply bg-aqua text-tinta font-inter font-semibold border-2 border-tinta rounded-full min-h-[52px] px-6 flex items-center justify-center transition-all duration-200 cursor-pointer;
     box-shadow: 4px 4px 0px 0px #0B1F3A;
   }
   .btn-primario:hover {
@@ -43,17 +59,63 @@
   .btn-primario:disabled {
     @apply opacity-50 cursor-not-allowed;
   }
+  .btn-secundario {
+    @apply bg-white text-tinta font-inter font-semibold border-2 border-tinta rounded-full min-h-[52px] px-6 flex items-center justify-center transition-colors duration-200 cursor-pointer hover:bg-aqua-suave;
+  }
+  .btn-secundario:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
 
+  /* Filtros tipo "píldora" (Todos / Cotizado / ...) */
+  .chip {
+    @apply bg-white text-tinta font-semibold border-2 border-tinta rounded-full px-4 py-2 text-sm cursor-pointer transition-colors hover:bg-aqua-suave;
+  }
+  .chip[aria-pressed="true"] {
+    @apply bg-tinta text-white;
+  }
+
+  /* ---------- Contenedores y campos ---------- */
+  .card-brutal {
+    @apply bg-white border-2 border-tinta rounded-[24px];
+  }
+  .input-brutal {
+    @apply w-full bg-white border-2 border-tinta rounded-2xl px-4 py-3 outline-none transition-colors focus:border-gota;
+  }
+  .label-brutal {
+    @apply block text-sm font-semibold text-tinta mb-1.5;
+  }
+
+  /* ---------- Tablas ---------- */
+  .tabla-brutal {
+    @apply w-full text-left text-sm;
+  }
+  .tabla-brutal thead th {
+    @apply px-4 pb-3 font-medium text-gris border-b-2 border-tinta;
+  }
+  .tabla-brutal tbody td {
+    @apply px-4 py-3.5 border-b border-linea align-middle;
+  }
+  .tabla-brutal tbody tr:last-child td {
+    @apply border-b-0;
+  }
+  .tabla-brutal tbody tr[aria-selected="true"] td {
+    @apply bg-aqua-suave;
+  }
+
+  /* ---------- Estados (badges) ---------- */
   .badge-cotizado {
-    @apply bg-white border-2 border-tinta border-dashed text-tinta px-3 py-1 rounded-full text-sm font-inter;
+    @apply inline-block bg-white border-2 border-tinta border-dashed text-tinta px-2.5 py-0.5 rounded-full text-xs font-inter font-bold;
   }
   .badge-confirmado {
-    @apply bg-aqua-suave border-2 border-gota text-gota-profunda px-3 py-1 rounded-full text-sm font-inter font-semibold;
+    @apply inline-block bg-aqua-suave border-2 border-gota text-gota-profunda px-2.5 py-0.5 rounded-full text-xs font-inter font-bold;
   }
   .badge-proceso {
-    @apply bg-cielo border-2 border-tinta text-tinta px-3 py-1 rounded-full text-sm font-inter;
+    @apply inline-block bg-cielo border-2 border-tinta text-tinta px-2.5 py-0.5 rounded-full text-xs font-inter font-bold;
   }
   .badge-finalizado {
-    @apply bg-tinta text-white px-3 py-1 rounded-full text-sm font-inter;
+    @apply inline-block bg-tinta text-white px-2.5 py-0.5 rounded-full text-xs font-inter font-bold;
+  }
+  .badge-pendiente {
+    @apply inline-block bg-sol border-2 border-tinta text-tinta px-2.5 py-0.5 rounded-full text-xs font-inter font-bold;
   }
 }

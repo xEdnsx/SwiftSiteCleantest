@@ -1,0 +1,34 @@
+<ion-content>
+  <main class="screen">
+    <header class="top">
+      <a routerLink="/pedidos" class="back" aria-label="Volver"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
+      <h1>Valora tu servicio</h1>
+    </header>
+
+    <section class="pedido">
+      <div class="id">Pedido {{ pedido.id }}</div>
+      <div class="servicio">{{ pedido.servicio }}</div>
+      <div class="detalle">{{ pedido.detalle }}</div>
+    </section>
+
+    <div class="lbl">¿Cómo te fue?</div>
+    <div class="estrellas" role="radiogroup" aria-label="Calificación">
+      <button *ngFor="let n of [1, 2, 3, 4, 5]" type="button" role="radio" [attr.aria-checked]="estrellas === n"
+              [attr.aria-label]="n + (n === 1 ? ' estrella' : ' estrellas')" (click)="estrellas = n">
+        <ssc-icon name="star" [size]="40" [strokeWidth]="1.6" [filled]="n <= estrellas" />
+      </button>
+    </div>
+    <div class="etiqueta">{{ etiquetasEstrellas[estrellas] }}</div>
+
+    <div class="lbl">¿Qué te gustó?</div>
+    <div class="pills">
+      <button *ngFor="let a of aspectos" type="button" class="pill" [class.active]="elegidos.has(a)" [attr.aria-pressed]="elegidos.has(a)" (click)="alternar(a)">{{ a }}</button>
+    </div>
+
+    <label class="lbl" for="comentario">Cuéntanos más <span>(opcional)</span></label>
+    <textarea id="comentario" [(ngModel)]="comentario" name="comentario" rows="3" placeholder="Ej. El baño quedó como nuevo."></textarea>
+    <p class="nota">Tu comentario se publica después de que el equipo lo revise.</p>
+
+    <button type="button" class="btn-primary" (click)="enviar()">Enviar valoración</button>
+  </main>
+</ion-content>

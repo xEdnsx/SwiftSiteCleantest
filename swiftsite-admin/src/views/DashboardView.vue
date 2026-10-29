@@ -1,124 +1,84 @@
 <script setup lang="ts">
+import { agendaHoy, badgePedido, pedidos, usd } from '../data/muestras'
+
+// TODO: reemplazar por datos reales de la API cuando existan los endpoints.
 const pedidosHoy = 4
 const porConfirmar = 3
 const ingresosMes = 2340
 const clientesNuevos = 12
+
+const recientes = pedidos.slice(0, 5)
+const colorAgenda = { aqua: 'border-aqua', gota: 'border-gota', sol: 'border-sol' } as const
 </script>
 
 <template>
-  <section class="flex flex-col gap-8 max-w-7xl mx-auto">
-    
+  <section class="flex flex-col gap-7 max-w-7xl mx-auto">
     <!-- Encabezado -->
-    <div>
-      <h2 class="font-bricolage font-bold text-2xl text-tinta">Buen día</h2>
-      <p class="text-tinta/74 font-inter">Jueves 15 de octubre · Esto es lo de hoy.</p>
-    </div>
+    <header class="flex items-start justify-between gap-4">
+      <div>
+        <h1 class="font-bricolage font-extrabold text-[40px] leading-none">Buen día</h1>
+        <p class="mt-2 text-gris">Jueves 15 de octubre · Esto es lo de hoy.</p>
+      </div>
+      <RouterLink to="/pedidos" class="btn-primario !min-h-[52px]">+ Nuevo pedido</RouterLink>
+    </header>
 
     <!-- Tarjetas KPI -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      
-      <div class="bg-aqua border-[2.5px] border-tinta rounded-[20px] p-6 flex flex-col justify-between shadow-[4px_4px_0px_0px_#0B1F3A]">
-        <p class="font-inter text-sm font-medium text-tinta/74">Pedidos de hoy</p>
-        <p class="font-bricolage font-bold text-4xl mt-4 text-tinta">{{ pedidosHoy }}</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+      <div class="card-brutal p-6">
+        <p class="text-gris">Pedidos de hoy</p>
+        <p class="font-bricolage font-extrabold text-[40px] leading-none mt-2">{{ pedidosHoy }}</p>
       </div>
-
-      <div class="bg-white border-[2.5px] border-tinta rounded-[20px] p-6 flex flex-col justify-between">
-        <p class="font-inter text-sm font-medium text-tinta/74">Por confirmar</p>
-        <p class="font-bricolage font-bold text-4xl mt-4 text-tinta">{{ porConfirmar }}</p>
+      <div class="card-brutal p-6">
+        <p class="text-gris">Por confirmar</p>
+        <p class="font-bricolage font-extrabold text-[40px] leading-none mt-2">{{ porConfirmar }}</p>
       </div>
-
-      <div class="bg-white border-[2.5px] border-tinta rounded-[20px] p-6 flex flex-col justify-between">
-        <p class="font-inter text-sm font-medium text-tinta/74">Ingresos del mes</p>
-        <p class="font-bricolage font-bold text-4xl mt-4 text-tinta">${{ ingresosMes }}</p>
+      <div class="rounded-[24px] border-2 border-tinta bg-tinta p-6 text-white">
+        <p class="text-menu">Ingresos del mes</p>
+        <p class="font-bricolage font-extrabold text-[40px] leading-none mt-2 text-cielo">${{ ingresosMes.toLocaleString('en-US') }}</p>
       </div>
-
-      <div class="bg-white border-[2.5px] border-tinta rounded-[20px] p-6 flex flex-col justify-between">
-        <p class="font-inter text-sm font-medium text-tinta/74">Clientes nuevos</p>
-        <p class="font-bricolage font-bold text-4xl mt-4 text-tinta">{{ clientesNuevos }}</p>
+      <div class="card-brutal p-6">
+        <p class="text-gris">Clientes nuevos</p>
+        <p class="font-bricolage font-extrabold text-[40px] leading-none mt-2">{{ clientesNuevos }}</p>
       </div>
-
     </div>
 
-    <!-- Sección inferior -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      <!-- Tabla de Pedidos Recientes -->
-      <div class="lg:col-span-2 bg-white border-[2.5px] border-tinta rounded-[20px] overflow-hidden flex flex-col">
-        <div class="p-6 border-b-2 border-tinta flex justify-between items-center bg-hueso">
-          <h3 class="font-bricolage font-bold text-lg">Pedidos recientes</h3>
-          <RouterLink to="/pedidos" class="text-sm font-medium text-gota hover:text-gota-profunda">Ver todos</RouterLink>
+    <!-- Pedidos recientes + agenda -->
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_348px] gap-7 items-start">
+      <section class="card-brutal p-7">
+        <div class="flex items-baseline justify-between mb-5">
+          <h2 class="font-bricolage font-extrabold text-2xl">Pedidos recientes</h2>
+          <RouterLink to="/pedidos" class="text-sm font-medium text-gota underline">Ver todos</RouterLink>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-left font-inter text-sm">
-            <thead class="bg-white border-b-2 border-tinta text-tinta/74 font-semibold">
-              <tr>
-                <th class="p-4">N.º</th>
-                <th class="p-4">Cliente</th>
-                <th class="p-4">Servicio</th>
-                <th class="p-4">Total</th>
-                <th class="p-4">Estado</th>
-              </tr>
+          <table class="tabla-brutal">
+            <thead>
+              <tr><th>N.º</th><th>Cliente</th><th>Servicio</th><th>Total</th><th>Estado</th></tr>
             </thead>
             <tbody>
-              <tr class="border-b border-tinta/10 hover:bg-hueso transition-colors">
-                <td class="p-4 font-medium">#0047</td>
-                <td class="p-4">María Hernández</td>
-                <td class="p-4">Sillas x6</td>
-                <td class="p-4 font-medium">$48.00</td>
-                <td class="p-4"><span class="badge-proceso">En proceso</span></td>
-              </tr>
-              <tr class="border-b border-tinta/10 hover:bg-hueso transition-colors">
-                <td class="p-4 font-medium">#0045</td>
-                <td class="p-4">Carlos Rivas</td>
-                <td class="p-4">Colchón matrimonial</td>
-                <td class="p-4 font-medium">$35.00</td>
-                <td class="p-4"><span class="badge-confirmado">Confirmado</span></td>
-              </tr>
-              <tr class="hover:bg-hueso transition-colors">
-                <td class="p-4 font-medium">#0042</td>
-                <td class="p-4">Ana Martínez</td>
-                <td class="p-4">Sofá 3 puestos x2, butaca</td>
-                <td class="p-4 font-medium">$120.00</td>
-                <td class="p-4"><span class="badge-cotizado">Cotizado</span></td>
+              <tr v-for="p in recientes" :key="p.numero">
+                <td>{{ p.numero }}</td>
+                <td class="font-semibold">{{ p.cliente }}</td>
+                <td>{{ p.servicio }}</td>
+                <td>{{ usd(p.total) }}</td>
+                <td><span :class="badgePedido[p.estado]">{{ p.estado }}</span></td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
-      <!-- Agenda del Día -->
-      <div class="bg-white border-[2.5px] border-tinta rounded-[20px] flex flex-col">
-        <div class="p-6 border-b-2 border-tinta bg-hueso">
-          <h3 class="font-bricolage font-bold text-lg">Agenda de hoy</h3>
-        </div>
-        <div class="p-6 flex-1 flex flex-col gap-4">
-          
-          <div class="flex gap-4">
-            <span class="font-bold text-sm w-12 pt-1">7:30</span>
-            <div class="flex-1 bg-hueso border border-tinta/20 rounded-xl p-3">
-              <p class="font-semibold text-sm">Luis Portillo</p>
-              <p class="text-xs text-tinta/74">Baño completo · Nuevo Cuscatlán</p>
+      <section class="card-brutal p-7">
+        <h2 class="font-bricolage font-extrabold text-2xl mb-5">Agenda de hoy</h2>
+        <ul class="flex flex-col gap-3.5">
+          <li v-for="cita in agendaHoy" :key="cita.hora" class="flex gap-4">
+            <span class="w-12 shrink-0 font-bricolage font-extrabold text-lg pt-2">{{ cita.hora }}</span>
+            <div class="flex-1 bg-hueso rounded-xl border-l-4 px-3.5 py-2.5" :class="colorAgenda[cita.color]">
+              <p class="font-semibold">{{ cita.cliente }}</p>
+              <p class="text-sm text-gris">{{ cita.detalle }}</p>
             </div>
-          </div>
-
-          <div class="flex gap-4">
-            <span class="font-bold text-sm w-12 pt-1">10:00</span>
-            <div class="flex-1 bg-aqua-suave border border-gota rounded-xl p-3">
-              <p class="font-semibold text-sm text-gota-profunda">Carlos Rivas</p>
-              <p class="text-xs text-gota/80">Colchón matrimonial · Por confirmar</p>
-            </div>
-          </div>
-
-          <div class="flex gap-4">
-            <span class="font-bold text-sm w-12 pt-1">1:00</span>
-            <div class="flex-1 border-2 border-dashed border-tinta/20 rounded-xl p-3 flex items-center justify-center text-tinta/40 text-sm font-medium">
-              Espacio libre
-            </div>
-          </div>
-
-        </div>
-      </div>
-
+          </li>
+        </ul>
+      </section>
     </div>
   </section>
 </template>

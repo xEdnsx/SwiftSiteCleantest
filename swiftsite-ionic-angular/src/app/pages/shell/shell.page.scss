@@ -1,0 +1,34 @@
+@use '../../../styles/ssc' as *;
+
+// Barra de navegación inferior (mockups: 91 px, píldora cian en la pestaña activa)
+ion-tab-bar {
+  --background: #fff;
+  --border: none;
+  height: 91px;
+  padding: 10px 8px 0;
+  align-items: flex-start;
+  border-top: 2px solid $ink;
+  contain: none;
+}
+
+ion-tab-button {
+  --color: #{$ink};
+  --color-selected: #{$ink};
+  --background: transparent;
+  --background-focused: transparent;
+  max-width: none;
+  height: 56px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+ion-tab-button::part(native) {
+  border-radius: 18px;
+  gap: 3px;
+}
+
+ion-tab-button.tab-selected::part(native) {
+  background: $aqua-suave;
+}
+
+ion-tab-button.tab-selected { font-weight: 700; }

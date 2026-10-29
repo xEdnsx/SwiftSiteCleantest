@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { errorMessage } from '../services/api'
+import BrandMark from '../components/BrandMark.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -24,63 +25,70 @@ async function submit() {
 </script>
 
 <template>
-  <main class="min-h-screen bg-noche flex items-center justify-center p-4 font-inter relative overflow-hidden">
-    
-    <!-- Decoración de fondo -->
-    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-aqua rounded-full blur-[150px] opacity-20 pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-gota rounded-full blur-[150px] opacity-20 pointer-events-none"></div>
+  <main class="min-h-screen flex font-inter bg-hueso">
+    <!-- Panel de marca (solo escritorio) -->
+    <section class="hidden lg:block relative w-[52%] max-w-[670px] shrink-0 bg-noche overflow-hidden text-white">
+      <div class="absolute -top-20 left-[429px] size-80 rounded-full bg-noche-1"></div>
+      <div class="absolute -left-14 top-[540px] size-90 rounded-full bg-noche-2"></div>
 
-    <!-- Tarjeta de Login -->
-    <form @submit.prevent="submit" class="bg-white border-[2.5px] border-tinta rounded-[24px] p-8 md:p-10 w-full max-w-md shadow-brutal relative z-10">
-      
-      <div class="text-center mb-8">
-        <p class="font-jakarta font-bold italic tracking-wider text-tinta/60 text-sm mb-2">SWIFTSITE CLEAN</p>
-        <h1 class="font-bricolage font-bold text-3xl text-tinta">Bienvenida</h1>
-        <p class="text-tinta/74 mt-2 text-sm">Entra con tu cuenta de administrador.</p>
+      <div class="absolute left-16 top-14 flex items-center gap-2.5">
+        <BrandMark :size="40" />
+        <span class="font-jakarta font-bold text-2xl tracking-tight">SwiftSite Clean</span>
       </div>
 
-      <div class="flex flex-col gap-5">
-        <label class="flex flex-col gap-1.5">
-          <span class="font-medium text-sm text-tinta">Correo</span>
-          <input 
-            v-model="correo" 
-            type="email" 
-            autocomplete="username" 
-            required 
-            placeholder="admin@swiftsite.com"
-            class="w-full bg-hueso border-2 border-tinta rounded-xl px-4 py-3 outline-none focus:border-gota focus:ring-1 focus:ring-gota transition-all"
-          />
-        </label>
-
-        <label class="flex flex-col gap-1.5">
-          <span class="font-medium text-sm text-tinta">Contraseña</span>
-          <input 
-            v-model="password" 
-            type="password" 
-            autocomplete="current-password" 
-            required 
-            placeholder="••••••••"
-            class="w-full bg-hueso border-2 border-tinta rounded-xl px-4 py-3 outline-none focus:border-gota focus:ring-1 focus:ring-gota transition-all"
-          />
-        </label>
-
-        <p v-if="error" role="alert" class="bg-red-100 border-2 border-red-500 text-red-700 p-3 rounded-xl text-sm font-medium">
-          {{ error }}
+      <div class="absolute left-16 top-[326px] w-[540px]">
+        <h1 class="font-bricolage font-extrabold text-[56px] leading-[58px]">
+          Todo tu negocio, <span class="text-cielo">en un solo lugar.</span>
+        </h1>
+        <p class="mt-4 text-[19px] leading-[27px] text-[#D8E6F6] max-w-[430px]">
+          Pedidos, clientes, precios y agenda. Para que no se te pierda ninguna limpieza.
         </p>
-
-        <button 
-          type="submit"
-          :disabled="loading"
-          class="btn-primario mt-2 w-full"
-        >
-          {{ loading ? 'Conectando...' : 'Entrar al panel' }}
-        </button>
-        
-        <a href="#" class="text-center text-sm font-medium text-gota hover:text-gota-profunda transition-colors mt-2">
-          ¿Olvidaste tu contraseña?
-        </a>
       </div>
-    </form>
 
+      <p class="absolute left-16 bottom-11 text-base text-[#D8E6F6]">Panel de administración</p>
+    </section>
+
+    <!-- Formulario -->
+    <section class="flex-1 flex items-center justify-center p-6">
+      <form @submit.prevent="submit" class="card-brutal shadow-brutal w-full max-w-[440px] p-8 md:p-10">
+        <div class="flex items-center gap-2 mb-6 lg:hidden">
+          <BrandMark :size="32" />
+          <span class="font-jakarta font-bold text-lg">SwiftSite Clean</span>
+        </div>
+
+        <h2 class="font-bricolage font-extrabold text-[34px] leading-tight">Bienvenida</h2>
+        <p class="mt-1 text-gris">Entra con tu cuenta de administrador.</p>
+
+        <div class="mt-7 flex flex-col gap-5">
+          <div>
+            <label class="label-brutal" for="admin-correo">Correo</label>
+            <input
+              id="admin-correo" v-model="correo" class="input-brutal" type="email"
+              autocomplete="username" required placeholder="admin@swiftsite.com"
+            />
+          </div>
+
+          <div>
+            <label class="label-brutal" for="admin-clave">Contraseña</label>
+            <input
+              id="admin-clave" v-model="password" class="input-brutal" type="password"
+              autocomplete="current-password" required placeholder="••••••••"
+            />
+          </div>
+
+          <p v-if="error" role="alert" class="bg-red-100 border-2 border-red-500 text-red-700 p-3 rounded-2xl text-sm font-medium">
+            {{ error }}
+          </p>
+
+          <button type="submit" :disabled="loading" class="btn-primario w-full">
+            {{ loading ? 'Conectando...' : 'Entrar al panel' }}
+          </button>
+
+          <a href="#" class="text-center text-sm font-medium text-gota hover:text-gota-profunda transition-colors">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+      </form>
+    </section>
   </main>
 </template>

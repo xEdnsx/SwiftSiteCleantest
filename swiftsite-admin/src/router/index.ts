@@ -3,7 +3,9 @@ import LoginView from '../views/LoginView.vue'
 import CatalogosView from '../views/CatalogosView.vue'
 import AdminLayout from '../views/AdminLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
-import PendingView from '../views/PendingView.vue'
+import PedidosView from '../views/PedidosView.vue'
+import ClientesView from '../views/ClientesView.vue'
+import ValoracionesView from '../views/ValoracionesView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -13,10 +15,11 @@ const router = createRouter({
     { path: '/', component: AdminLayout, meta: { requiresAuth: true }, children: [
       { path: '', redirect: '/dashboard' },
       { path: 'dashboard', name: 'dashboard', component: DashboardView },
-      { path: 'pedidos', component: PendingView, props: { title: 'Pedidos' } },
+      { path: 'pedidos', component: PedidosView },
       { path: 'catalogos', component: CatalogosView },
       { path: 'zonas', component: CatalogosView },
-      { path: 'clientes', component: PendingView, props: { title: 'Clientes' } },
+      { path: 'clientes', component: ClientesView },
+      { path: 'valoraciones', component: ValoracionesView },
     ] },
     { path: '/:pathMatch(.*)*', redirect: '/dashboard' },
   ],

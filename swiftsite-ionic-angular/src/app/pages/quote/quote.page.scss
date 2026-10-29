@@ -1,0 +1,51 @@
+@use '../../../styles/ssc' as *;
+
+ion-content { --background: #{$bone}; }
+
+.screen { @include screen(17px); }
+
+h1 { margin: 0; @include display(31px, 34px); }
+.lead { margin: 8px 0 0; font-size: 16px; line-height: 21px; color: $gris; }
+
+.status { margin: 16px 0 0; color: $gris; font-weight: 500; }
+.error { margin: 16px 0 0; color: $error; font-weight: 500; }
+
+form { margin-top: 12px; display: flex; flex-direction: column; }
+
+label { margin-top: 18px; font-weight: 600; font-size: 17px; }
+
+select, input {
+  @include field();
+  margin-top: 8px;
+}
+select { appearance: none; padding-right: 44px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230B1F3A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center; }
+
+.btn-primary { @include btn-primary(); margin-top: 24px; }
+.btn-retry { @include btn-secondary(48px, 17px); margin-top: 16px; padding: 0 24px; align-self: flex-start; }
+
+.result {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: $ink;
+  border-radius: 22px;
+  color: #fff;
+  h2 { margin: 0 0 10px; font-family: $font-ui; font-weight: 700; font-size: 18px; }
+  .row { display: flex; justify-content: space-between; font-size: 17px; color: $menu; margin-top: 6px; }
+  .total {
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 1px solid #3B506B;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: $font-ui;
+    font-weight: 700;
+    font-size: 20px;
+    strong { @include display(40px, 40px); color: $cielo; }
+  }
+}
+
+.wizard-link {
+  margin-top: 20px;
+  @include btn-secondary(54px, 18px);
+}
