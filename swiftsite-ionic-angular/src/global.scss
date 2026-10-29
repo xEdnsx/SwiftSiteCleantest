@@ -4,10 +4,52 @@
 @import '@ionic/angular/css/typography.css';
 @import '@ionic/angular/css/padding.css';
 @import '@ionic/angular/css/display.css';
-:root{--ion-color-primary:#00e5ff;--ion-color-primary-contrast:#0b1f3a;--ion-background-color:#f2f8fc;--ion-text-color:#0b1f3a;--ink:#0b1f3a;--aqua:#00e5ff;--bone:#f2f8fc}
-*{box-sizing:border-box}html,body{font-family:Inter,'Segoe UI',Arial,sans-serif}a{text-decoration:none}button{cursor:pointer}ion-content{--background:var(--bone)}
-.privacy-header{max-width:1100px;margin:auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;color:var(--ink)}.privacy-header a{color:#1e5bd8}.privacy{max-width:840px;padding:40px 24px 80px;margin:auto;line-height:1.75}.privacy h1{font-size:clamp(36px,6vw,58px);line-height:1.1}.privacy section{padding:20px 0;border-bottom:1px solid #d8e7ef}.privacy h2{font-size:24px}.privacy a{color:#1e5bd8}
 
-a[aria-disabled="true"]{pointer-events:none;opacity:.55;cursor:default}.contact-notice{margin:0;padding:12px 24px;background:#fff3cd;color:#664d03;text-align:center}
+:root {
+  --ssc-hueso: #F2F8FC;
+  --ssc-tinta: #0B1F3A;
+  --ssc-noche: #0F3A7A;
+  --ssc-aqua: #00E5FF;
+  --ssc-aqua-suave: #D9F7FA;
+  --ssc-cielo: #9AF3FF;
+  --ssc-gota: #1E5BD8;
+  --ssc-gota-profunda: #0F3FA8;
+  --ssc-sol: #FFD23F;
 
-.client-panel{max-width:680px;margin:auto;padding:28px 24px 60px}.client-back{display:block;padding:16px 24px;color:var(--ink)}.client-panel label{display:block;margin:18px 0}.client-panel input,.client-panel select{display:block;width:100%;padding:12px;margin-top:7px;border:1px solid #b4c9d3;border-radius:8px;background:white;color:var(--ink);font:inherit}.client-panel button{background:var(--ink);color:white;border:0;border-radius:24px;padding:13px 22px;font:inherit}.client-panel button:disabled{opacity:.5}.client-error{color:#a12222}.client-panel a{color:#1e5bd8}
+  --font-bricolage: "Bricolage Grotesque", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-inter);
+  background-color: var(--ssc-hueso);
+  color: var(--ssc-tinta);
+}
+
+a { text-decoration: none; }
+button { cursor: pointer; }
+a[aria-disabled="true"] { pointer-events: none; opacity: .55; cursor: default; }
+.contact-notice { margin: 0; padding: 12px 24px; background: #fff3cd; color: #664d03; text-align: center; }
+
+/* Estilos compartidos para paneles */
+.client-panel { max-width: 680px; margin: auto; padding: 28px 24px 60px; }
+.client-back { display: block; padding: 16px 24px; color: var(--ssc-tinta); }
+.client-panel label { display: block; margin: 18px 0; font-weight: 500; }
+.client-panel input, .client-panel select {
+  display: block; width: 100%; padding: 12px; margin-top: 7px;
+  border: 2px solid var(--ssc-tinta); border-radius: 12px;
+  background: white; color: var(--ssc-tinta); font: inherit;
+}
+.client-panel button {
+  background: var(--ssc-aqua); color: var(--ssc-tinta);
+  border: 2px solid var(--ssc-tinta); border-radius: 99px;
+  padding: 13px 22px; font: inherit; font-weight: 600;
+  box-shadow: 4px 4px 0 var(--ssc-tinta);
+  transition: all 0.2s;
+}
+.client-panel button:active {
+  transform: translate(4px, 4px); box-shadow: 0px 0px 0 var(--ssc-tinta);
+}
+.client-panel button:disabled { opacity: .5; }
+.client-error { color: #a12222; }
+.client-panel a { color: var(--ssc-gota); }

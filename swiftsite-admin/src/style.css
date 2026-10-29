@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Caveat:wght@600;700&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:ital,wght@1,700;1,800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-hueso: #F2F8FC;
+  --color-tinta: #0B1F3A;
+  --color-noche: #0F3A7A;
+  --color-aqua: #00E5FF;
+  --color-aqua-suave: #D9F7FA;
+  --color-cielo: #9AF3FF;
+  --color-gota: #1E5BD8;
+  --color-gota-profunda: #0F3FA8;
+  --color-sol: #FFD23F;
+
+  --font-bricolage: "Bricolage Grotesque", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-caveat: "Caveat", cursive;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-hueso);
+    color: var(--color-tinta);
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .btn-primario {
+    @apply bg-aqua text-tinta font-inter font-semibold border-2 border-tinta rounded-full min-h-[52px] px-6 flex items-center justify-center transition-all duration-200;
+    box-shadow: 4px 4px 0px 0px #0B1F3A;
+  }
+  .btn-primario:hover {
+    @apply translate-x-[2px] translate-y-[2px];
+    box-shadow: 2px 2px 0px 0px #0B1F3A;
+  }
+  .btn-primario:active {
+    @apply translate-x-[4px] translate-y-[4px];
+    box-shadow: 0px 0px 0px 0px #0B1F3A;
+  }
+  .btn-primario:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .badge-cotizado {
+    @apply bg-white border-2 border-tinta border-dashed text-tinta px-3 py-1 rounded-full text-sm font-inter;
+  }
+  .badge-confirmado {
+    @apply bg-aqua-suave border-2 border-gota text-gota-profunda px-3 py-1 rounded-full text-sm font-inter font-semibold;
+  }
+  .badge-proceso {
+    @apply bg-cielo border-2 border-tinta text-tinta px-3 py-1 rounded-full text-sm font-inter;
+  }
+  .badge-finalizado {
+    @apply bg-tinta text-white px-3 py-1 rounded-full text-sm font-inter;
+  }
+}
