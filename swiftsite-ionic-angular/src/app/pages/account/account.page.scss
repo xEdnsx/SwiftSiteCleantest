@@ -1,0 +1,18 @@
+@use '../../../styles/ssc' as *;
+
+ion-content { --background: #{$bone}; }
+.screen { @include screen(17px); }
+
+h1 { margin: 0; @include display(38px, 44px); }
+
+.perfil { margin-top: 20px; padding: 20px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; @include card(22px); }
+.avatar {
+  width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;
+  background: $aqua-suave; border: 2px solid $ink; border-radius: 22px; color: $ink;
+}
+.nombre { margin: 14px 0 0; font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
+.dato { margin: 4px 0 0; font-size: 16px; color: $gris; }
+
+.error { margin: 16px 0 0; color: $error; font-weight: 500; }
+.btn-logout { @include btn-secondary(54px, 18px); margin-top: 20px; width: 100%; }
+.nota { margin: 14px 0 0; font-size: 16px; line-height: 21px; color: $gris; }

@@ -1,0 +1,148 @@
+// Tokens y mixins del estilo SwiftSite Clean (tomados de los mockups).
+// Uso en un componente:  @use '../../../styles/ssc' as *;
+
+$ink: #0B1F3A;
+$aqua: #00E5FF;
+$aqua-suave: #D9F7FA;
+$cielo: #9AF3FF;
+$blue: #1E5BD8;
+$blue-dark: #0F3FA0;
+$sol: #FFD23F;
+$bone: #F2F8FC;
+$gris: #4A5A70;
+$linea: #DCE4EC;
+$placeholder: #5F6E82;
+$menu: #D6E3F2;
+$error: #a12222;
+
+$font-display: 'Bricolage Grotesque', sans-serif;
+$font-ui: 'Plus Jakarta Sans', sans-serif;
+
+// Títulos y cifras (Bricolage con eje óptico máximo)
+@mixin display($size, $line: null) {
+  font-family: $font-display;
+  font-weight: 800;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.03em;
+  font-size: $size;
+  @if $line { line-height: $line; }
+}
+
+// Contenedor de una pantalla móvil dentro de <ion-content>
+@mixin screen($top: 17px) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: $top 20px 16px;
+}
+
+@mixin card($radius: 22px) {
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: $radius;
+}
+
+// Botón principal cian con sombra dura
+@mixin btn-primary($height: 58px, $size: 20px) {
+  height: $height;
+  width: calc(100% - 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $aqua;
+  border: 2px solid $ink;
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 $ink;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: $size;
+  color: $ink;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  &:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 0 0 0 $ink; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+// Botón secundario blanco
+@mixin btn-secondary($height: 54px, $size: 18px) {
+  height: $height;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: $size;
+  color: $ink;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+// Píldora seleccionable (activa = fondo tinta)
+@mixin pill($height: 44px, $size: 17px) {
+  height: $height;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: $size;
+  font-weight: 500;
+  color: $ink;
+  cursor: pointer;
+  &.active { background: $ink; color: #fff; }
+}
+
+// Campo de texto
+@mixin field($height: 52px) {
+  width: 100%;
+  min-height: $height;
+  padding: 0 18px;
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: 18px;
+  font-family: inherit;
+  font-size: 18px;
+  color: $ink;
+  outline: none;
+  &::placeholder { color: $placeholder; }
+  &:focus { border-color: $blue; }
+}
+
+// Botón circular de "volver"
+@mixin back-button {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 2px solid $ink;
+  border-radius: 50%;
+  color: $ink;
+  cursor: pointer;
+}
+
+// Etiquetas de estado de pedido
+@mixin badge($bg, $color: $ink, $border: $ink) {
+  height: 26px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  background: $bg;
+  border: 1.5px solid $border;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: $color;
+}

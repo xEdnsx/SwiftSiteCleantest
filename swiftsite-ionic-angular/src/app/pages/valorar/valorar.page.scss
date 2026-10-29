@@ -1,0 +1,28 @@
+@use '../../../styles/ssc' as *;
+
+ion-content { --background: #{$bone}; }
+.screen { @include screen(17px); }
+
+.top { display: flex; align-items: center; gap: 12px; }
+.back { @include back-button; }
+h1 { margin: 0; @include display(31px, 34px); }
+
+.pedido { margin-top: 16px; padding: 12px 18px 14px; @include card(22px); }
+.id { font-size: 15px; color: $gris; line-height: 20px; }
+.servicio { font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
+.detalle { font-size: 16px; line-height: 22px; }
+
+.lbl { margin-top: 20px; font-weight: 600; font-size: 17px; span { font-weight: 400; color: $gris; } }
+
+.estrellas { margin-top: 12px; display: flex; justify-content: space-between; padding: 0 6px;
+  button { background: none; border: 0; padding: 0; color: $ink; cursor: pointer; display: flex; } }
+.etiqueta { margin-top: 8px; font-weight: 600; font-size: 17px; color: $blue-dark; }
+
+.pills { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.pill { @include pill(44px, 18px); padding: 0 20px; }
+
+textarea { @include field(94px); margin-top: 8px; padding: 12px 18px; border-radius: 20px; font-size: 19px; line-height: 24px; resize: none; }
+.nota { margin: 10px 0 0; font-size: 15px; line-height: 20px; color: $gris; }
+
+.btn-primary { @include btn-primary(); margin-top: auto; }
+.nota + .btn-primary { margin-top: 24px; }

@@ -1,17 +1,28 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent, IonHeader, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
 import { httpError } from '../../core/api.interceptor';
+import { IconComponent } from '../../shared/icon.component';
 
 @Component({
-  selector: 'app-account', standalone: true, imports: [CommonModule, IonContent, IonHeader, IonToolbar],
-  template: `<ion-header><ion-toolbar><span class="client-back">{{ pedidos ? 'Mis pedidos' : 'Mi perfil' }}</span></ion-toolbar></ion-header>
-    <ion-content><main class="client-panel">
-      <ng-container *ngIf="pedidos; else perfil"><h1>Mis pedidos</h1><p>El seguimiento de pedidos se implementara en el Sprint 3. Todavia no hay un listado conectado.</p></ng-container>
-      <ng-template #perfil><h1>{{ auth.session.usuario()?.nombre }}</h1><p>{{ auth.session.usuario()?.correo }}</p><p>{{ auth.session.usuario()?.telefono }}</p>
-      <p *ngIf="error" class="client-error" role="alert">{{ error }}</p><button [disabled]="busy" (click)="logout()">Cerrar sesion</button></ng-template>
+  selector: 'app-account', standalone: true, imports: [CommonModule, IonContent, IconComponent],
+  styleUrls: ['./account.page.scss'],
+  template: `<ion-content>
+    <main class="screen">
+      <ng-container *ngIf="pedidos; else perfil"><h1>Mis pedidos</h1><p class="nota">El seguimiento de pedidos se implementará en el Sprint 3. Todavía no hay un listado conectado.</p></ng-container>
+      <ng-template #perfil>
+        <h1>Mi perfil</h1>
+        <section class="perfil">
+          <div class="avatar" aria-hidden="true"><ssc-icon name="profile" [size]="36" /></div>
+          <p class="nombre">{{ auth.session.usuario()?.nombre }}</p>
+          <p class="dato">{{ auth.session.usuario()?.correo }}</p>
+          <p class="dato" *ngIf="auth.session.usuario()?.telefono">{{ auth.session.usuario()?.telefono }}</p>
+        </section>
+        <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+        <button class="btn-logout" [disabled]="busy" (click)="logout()">Cerrar sesión</button>
+      </ng-template>
     </main></ion-content>`,
 })
 export class AccountPage {
