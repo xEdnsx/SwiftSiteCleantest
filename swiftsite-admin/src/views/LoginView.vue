@@ -84,9 +84,9 @@ async function submit() {
             {{ loading ? 'Conectando...' : 'Entrar al panel' }}
           </button>
 
-          <a href="#" class="text-center text-sm font-medium text-gota hover:text-gota-profunda transition-colors">
+          <RouterLink to="/recuperar-password" class="text-center text-sm font-medium text-gota hover:text-gota-profunda transition-colors">
             ¿Olvidaste tu contraseña?
-          </a>
+          </RouterLink>
         </div>
       </form>
     </section>

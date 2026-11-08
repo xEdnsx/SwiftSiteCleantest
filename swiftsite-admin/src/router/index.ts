@@ -12,9 +12,11 @@ import { useAuthStore } from '../stores/auth'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    { path: '/recuperar-password', component: () => import('../views/RecuperarView.vue'), meta: { public: true } },
     { path: '/login', name: 'login', component: LoginView },
     { path: '/', component: AdminLayout, meta: { requiresAuth: true }, children: [
       { path: '', redirect: '/dashboard' },
+      { path: 'administradores', component: () => import('../views/AdministradoresView.vue'), meta: { principal: true } },
       { path: 'dashboard', name: 'dashboard', component: DashboardView },
       { path: 'pedidos', component: PedidosView },
       { path: 'catalogos', component: CatalogosView },
@@ -28,9 +30,11 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
+  if (to.meta.public) return true
   const auth = useAuthStore()
   try { await auth.restore() } catch { return to.name === 'login' ? true : { name: 'login' } }
   if (to.meta.requiresAuth && !auth.usuario) return { name: 'login' }
+  if (to.meta.principal && (auth.usuario?.id_usuario !== 1 || auth.usuario?.rol.nombre_rol !== 'Administrador')) return { name: 'dashboard' }
   if (to.name === 'login' && auth.usuario) return { name: 'dashboard' }
 })
 

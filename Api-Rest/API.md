@@ -145,3 +145,20 @@ Clientes (`/api/admin/clientes`): `nombre` es obligatorio; `telefono` y `correo`
 `GET /api/mis-reportes` devuelve la `respuesta` del equipo y `fecha_actualizacion`; asi la app muestra la respuesta al cliente.
 
 Los pedidos del panel (`/api/admin/pedidos`) tambien traen `reportes` y `valoracion`. Pruebas: `ReportesApiTest`, `ReportesAdminApiTest` y `ValoracionesApiTest`.
+
+
+## Recuperación de contraseña (clientes y administradores)
+
+- `POST /api/forgot-password`: `{ "correo": "persona@example.com" }`. Devuelve un mensaje genérico sin confirmar si existe la cuenta. El código se envía por correo, no en la respuesta. Reenvío tras 60 segundos; máximo 5 solicitudes por minuto/IP.
+- `POST /api/reset-password`: `{ "correo": "persona@example.com", "token": "codigo-del-correo", "password": "nueva-clave", "password_confirmation": "nueva-clave" }`. Mínimo 8, máximo 72 caracteres. Código válido durante 30 minutos, de un solo uso, almacenado como hash. Un nuevo envío invalida el anterior. Revoca todos los tokens Sanctum; se debe iniciar sesión de nuevo.
+- Las cuentas sin contraseña deben completar la activación existente, no este flujo.
+- Pantallas públicas: `/recuperar-password` tanto en Vue como Ionic, enlazadas desde login. No guardan el código en URL ni almacenamiento persistente.
+- Requiere las migraciones existentes (`password_reset_tokens`) y un transporte de correo real. Configurar `MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` y las opciones TLS según el proveedor en el entorno de despliegue. No versionar secretos. `log` y `array` devuelven 503 para evitar guardar códigos en registros. No se han sustituido credenciales ni probado entrega externa en esta implementación.
+
+## Administrador Principal
+
+`GET /api/admin/administradores` y `POST /api/admin/administradores` requieren Sanctum, rol `Administrador` **e id_usuario 1**. Otros administradores y clientes reciben 403; invitados 401. No se promueve automáticamente al usuario 1 si tiene otro rol.
+
+Creación: `nombre`, `correo` único, `telefono` opcional, `password` y `password_confirmation`. El servidor fija el rol y genera el hash; no acepta `id_rol`, `id_usuario` ni `password_hash`. No emite sesión de la cuenta creada ni expone contraseñas. El nuevo administrador puede entrar al panel y usar recuperación de contraseña, pero no crear más administradores.
+
+El apartado Vue `/administradores` aparece únicamente para el Principal; incluye listado y formulario. La protección definitiva se aplica también en la API. Se comparte la contraseña inicial por un canal privado.

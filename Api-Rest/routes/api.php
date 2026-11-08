@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdministradorController;
 use App\Http\Controllers\Api\Admin\ClienteAdminController;
 use App\Http\Controllers\Api\Admin\PedidoAdminController;
 use App\Http\Controllers\Api\Admin\PendientesAdminController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Api\Admin\ValoracionAdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\CotizacionController;
+use App\Http\Controllers\Api\PasswordRecoveryController;
 use App\Http\Controllers\Api\PedidoController;
 use App\Http\Controllers\Api\PerfilController;
 use App\Http\Controllers\Api\ReporteController;
@@ -82,4 +84,11 @@ Route::middleware(['auth:sanctum', 'can:administrar-panel'])->prefix('admin')->g
     Route::get('/valoraciones', [ValoracionAdminController::class, 'index']);
     Route::patch('/valoraciones/{valoracion}', [ValoracionAdminController::class, 'update']);
     Route::delete('/valoraciones/{valoracion}', [ValoracionAdminController::class, 'destroy']);
+});
+
+Route::post('/forgot-password', [PasswordRecoveryController::class, 'solicitar'])->middleware('throttle:recuperacion-solicitar');
+Route::post('/reset-password', [PasswordRecoveryController::class, 'restablecer'])->middleware('throttle:recuperacion-confirmar');
+Route::middleware(['auth:sanctum', 'can:crear-administradores'])->prefix('admin')->group(function () {
+    Route::get('/administradores', [AdministradorController::class, 'index']);
+    Route::post('/administradores', [AdministradorController::class, 'store'])->middleware('throttle:10,1');
 });

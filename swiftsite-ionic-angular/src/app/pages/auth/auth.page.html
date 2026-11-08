@@ -58,6 +58,8 @@
       </button>
     </form>
 
+    <a *ngIf="!register" routerLink="/recuperar-password" class="btn-secondary">Olvidé mi contraseña</a>
+
     <div class="divider"><span>o</span></div>
     <a routerLink="/inicio" class="btn-secondary">Seguir como invitado</a>
     <p class="note">Como invitado puedes cotizar. Para confirmar un pedido necesitas cuenta.</p>

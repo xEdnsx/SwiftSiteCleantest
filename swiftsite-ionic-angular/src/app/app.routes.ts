@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { clienteGuard } from './core/auth.guard';
 
 export const routes: Routes = [
+  { path: 'recuperar-password', loadComponent: () => import('./pages/auth/recovery.page').then(m => m.RecoveryPage) },
   { path: 'login', loadComponent: () => import('./pages/auth/auth.page').then(m => m.AuthPage) },
   { path: 'registro', data: { register: true }, loadComponent: () => import('./pages/auth/auth.page').then(m => m.AuthPage) },
   { path: 'terminos', data: { tipo: 'terminos' }, loadComponent: () => import('./pages/legal/legal.page').then(m => m.LegalPage) },

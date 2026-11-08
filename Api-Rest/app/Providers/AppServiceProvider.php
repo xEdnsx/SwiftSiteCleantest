@@ -24,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('crear-administradores', fn (Usuario $usuario): bool => (int) $usuario->getKey() === 1 && $usuario->rol()->where('nombre_rol', 'Administrador')->exists());
+
+        RateLimiter::for('recuperacion-solicitar', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+        RateLimiter::for('recuperacion-confirmar', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('registro', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 

@@ -66,6 +66,7 @@ async function logout() {
             :aria-label="`${item.globo()} pendientes`"
           >{{ item.globo() }}</span>
         </RouterLink>
+        <RouterLink v-if="auth.usuario?.id_usuario === 1 && auth.usuario?.rol.nombre_rol === 'Administrador'" to="/administradores" class="block rounded-xl px-4 py-3 text-menu hover:bg-white/10">Administradores</RouterLink>
       </nav>
 
       <div class="mt-auto">
@@ -87,6 +88,7 @@ async function logout() {
       <p v-if="error" class="bg-red-100 border-2 border-red-500 text-red-700 p-4 rounded-2xl mb-6" role="alert">
         {{ error }}
       </p>
+      <RouterLink v-if="auth.usuario?.id_usuario === 1 && auth.usuario?.rol.nombre_rol === 'Administrador'" to="/administradores" class="md:hidden block mb-4 underline">Administradores</RouterLink>
       <RouterView :key="$route.path" />
     </main>
   </div>
