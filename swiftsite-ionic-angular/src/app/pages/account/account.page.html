@@ -1,0 +1,197 @@
+<ion-content>
+  <main class="screen">
+
+    <!-- ============ MI PERFIL ============ -->
+    <ng-container *ngIf="vista === 'perfil'">
+      <header class="titulo">
+        <h1>Mi perfil</h1>
+        <button type="button" class="redondo" aria-label="Editar perfil" (click)="abrir('editar')"><ssc-icon name="edit" [size]="20" /></button>
+      </header>
+
+      <section class="tarjeta-perfil">
+        <div class="avatar" aria-hidden="true">{{ iniciales(usuario?.nombre) }}</div>
+        <div class="quien">
+          <p class="nombre">{{ usuario?.nombre }}</p>
+          <p class="dato">{{ usuario?.correo }}</p>
+          <p class="dato" *ngIf="usuario?.telefono">{{ usuario?.telefono }}</p>
+        </div>
+      </section>
+
+      <p *ngIf="ok" class="exito" role="status">{{ ok }}</p>
+      <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+
+      <section class="cifras" aria-label="Resumen de tu actividad">
+        <div class="grande">
+          <span class="rotulo">Servicios contratados</span>
+          <strong class="numero">{{ stats ? stats.contratados : '–' }}</strong>
+          <span class="detalle" *ngIf="stats">{{ stats.finalizados }} finalizados · {{ stats.enCurso }} en curso</span>
+        </div>
+        <div class="chicas">
+          <div><span class="rotulo">Valoraciones</span><strong>{{ valoraciones ?? '—' }}</strong></div>
+          <div><span class="rotulo">Reportes</span><strong>{{ reportes ?? '—' }}</strong></div>
+        </div>
+      </section>
+
+      <h2>Mis datos</h2>
+      <div class="lista">
+        <button type="button" (click)="abrir('editar')">
+          <span class="tile"><ssc-icon name="profile" [size]="20" /></span><span class="txt">Nombre</span><span class="valor">{{ usuario?.nombre }}</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </button>
+        <button type="button" (click)="abrir('editar')">
+          <span class="tile"><ssc-icon name="phone" [size]="20" /></span><span class="txt">Teléfono</span><span class="valor">{{ usuario?.telefono || 'Agregar' }}</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </button>
+        <button type="button" (click)="abrir('editar')">
+          <span class="tile"><ssc-icon name="mail" [size]="20" /></span><span class="txt">Correo</span><span class="valor">{{ usuario?.correo }}</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </button>
+        <button type="button" (click)="abrir('direcciones')">
+          <span class="tile"><ssc-icon name="pin" [size]="20" /></span><span class="txt">Direcciones</span><span class="valor">{{ direcciones.length === 1 ? '1 usada' : direcciones.length + ' usadas' }}</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </button>
+      </div>
+
+      <h2>Preferencias</h2>
+      <div class="lista">
+        <button type="button" role="switch" [attr.aria-checked]="oscuro" (click)="cambiarTema()">
+          <span class="tile"><ssc-icon name="moon" [size]="20" /></span><span class="txt">Modo oscuro</span>
+          <span class="interruptor" [class.on]="oscuro" aria-hidden="true"><span></span></span>
+        </button>
+      </div>
+
+      <h2>Seguridad</h2>
+      <div class="lista">
+        <button type="button" (click)="abrir('clave')">
+          <span class="tile"><ssc-icon name="lock" [size]="20" /></span><span class="txt">Cambiar contraseña</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </button>
+      </div>
+
+      <h2>Ayuda</h2>
+      <div class="lista">
+        <a *ngIf="reportar" [href]="reportar" target="_blank" rel="noopener noreferrer">
+          <span class="tile"><ssc-icon name="warning" [size]="20" /></span><span class="txt">Reportar un problema</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </a>
+        <button type="button" (click)="abrir('faq')">
+          <span class="tile"><ssc-icon name="help" [size]="20" /></span><span class="txt">Preguntas frecuentes</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </button>
+        <a *ngIf="whatsapp" [href]="whatsapp" target="_blank" rel="noopener noreferrer">
+          <span class="tile"><ssc-icon name="chat" [size]="20" /></span><span class="txt">Escribirnos por WhatsApp</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </a>
+        <a routerLink="/terminos">
+          <span class="tile"><ssc-icon name="shield" [size]="20" /></span><span class="txt">Términos y privacidad</span><ssc-icon name="chevron-right" [size]="20" class="flecha" />
+        </a>
+      </div>
+
+      <button class="btn-logout" type="button" [disabled]="busy" (click)="logout()"><ssc-icon name="logout" [size]="22" /> Cerrar sesión</button>
+      <button class="btn-eliminar" type="button" (click)="abrir('eliminar')">Eliminar mi cuenta</button>
+      <p class="pie">SwiftSite Clean · textos legales v{{ version }}</p>
+    </ng-container>
+
+    <!-- ============ EDITAR ============ -->
+    <ng-container *ngIf="vista === 'editar'">
+      <header class="barra"><button type="button" class="volver" aria-label="Volver" (click)="cerrarVista()"><ssc-icon name="back" /></button><h1>Editar perfil</h1></header>
+      <form (ngSubmit)="guardarDatos()" novalidate>
+        <div class="avatar grande-av" aria-hidden="true">{{ iniciales(datos.nombre) }}</div>
+
+        <label for="nombre">Nombre</label>
+        <input id="nombre" class="field" name="nombre" [(ngModel)]="datos.nombre" maxlength="120" autocomplete="name">
+        <p class="campo-error" *ngIf="erroresDatos.nombre">{{ erroresDatos.nombre }}</p>
+
+        <label for="telefono">Teléfono <span class="optional">(opcional)</span></label>
+        <input id="telefono" class="field" name="telefono" type="tel" [(ngModel)]="datos.telefono" maxlength="25" autocomplete="tel" placeholder="7000-0000">
+        <p class="campo-error" *ngIf="erroresDatos.telefono">{{ erroresDatos.telefono }}</p>
+
+        <label for="correo">Correo</label>
+        <div class="field bloqueado"><input id="correo" name="correo" [value]="usuario?.correo" disabled><ssc-icon name="lock" [size]="20" /></div>
+        <p class="nota">Para cambiar tu correo, escríbenos y lo actualizamos.</p>
+
+        <button type="button" class="fila-link" (click)="abrir('clave')"><span><ssc-icon name="lock" [size]="22" /> Cambiar contraseña</span><ssc-icon name="chevron-right" [size]="20" /></button>
+
+        <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+        <div class="pie-fijo">
+          <button type="button" class="btn-secondary" (click)="cerrarVista()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="busy">{{ busy ? 'Guardando...' : 'Guardar cambios' }}</button>
+        </div>
+      </form>
+    </ng-container>
+
+    <!-- ============ CAMBIAR CONTRASEÑA ============ -->
+    <ng-container *ngIf="vista === 'clave'">
+      <header class="barra"><button type="button" class="volver" aria-label="Volver" (click)="cerrarVista()"><ssc-icon name="back" /></button><h1>Cambiar contraseña</h1></header>
+      <form (ngSubmit)="guardarClave()" novalidate>
+        <label for="actual">Contraseña actual</label>
+        <input id="actual" class="field" name="actual" [type]="verClave ? 'text' : 'password'" [(ngModel)]="clave.actual" maxlength="72" autocomplete="current-password">
+        <p class="campo-error" *ngIf="erroresClave.actual">{{ erroresClave.actual }}</p>
+
+        <label for="nueva">Nueva contraseña</label>
+        <div class="field password">
+          <input id="nueva" name="nueva" [type]="verClave ? 'text' : 'password'" [(ngModel)]="clave.nueva" maxlength="72" autocomplete="new-password">
+          <button type="button" class="eye" [attr.aria-label]="verClave ? 'Ocultar contraseñas' : 'Mostrar contraseñas'" (click)="verClave = !verClave"><ssc-icon [name]="verClave ? 'eye-off' : 'eye'" /></button>
+        </div>
+        <p class="campo-error" *ngIf="erroresClave.nueva">{{ erroresClave.nueva }}</p>
+
+        <ng-container *ngIf="evaluarClave(clave.nueva) as fuerza">
+          <div class="medidor" *ngIf="clave.nueva" [attr.data-nivel]="fuerza.nivel" aria-live="polite">
+            <span class="barra-fuerza"><i></i><i></i><i></i></span>
+            <strong>{{ fuerza.etiqueta }}</strong>
+          </div>
+          <ul class="requisitos">
+            <li [class.cumple]="fuerza.largo"><ssc-icon name="check" [size]="16" /> 8 caracteres o más</li>
+            <li [class.cumple]="fuerza.mayuscula"><ssc-icon name="check" [size]="16" /> Una letra mayúscula</li>
+            <li [class.cumple]="fuerza.numero"><ssc-icon name="check" [size]="16" /> Un número</li>
+          </ul>
+        </ng-container>
+
+        <label for="confirmacion">Confirmar nueva contraseña</label>
+        <input id="confirmacion" class="field" name="confirmacion" [type]="verClave ? 'text' : 'password'" [(ngModel)]="clave.confirmacion" maxlength="72" autocomplete="new-password">
+        <p class="campo-error" *ngIf="erroresClave.confirmacion">{{ erroresClave.confirmacion }}</p>
+
+        <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+        <div class="pie-fijo">
+          <button type="button" class="btn-secondary" (click)="cerrarVista()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="busy">{{ busy ? 'Guardando...' : 'Actualizar' }}</button>
+        </div>
+      </form>
+    </ng-container>
+
+    <!-- ============ DIRECCIONES USADAS ============ -->
+    <ng-container *ngIf="vista === 'direcciones'">
+      <header class="barra"><button type="button" class="volver" aria-label="Volver" (click)="cerrarVista()"><ssc-icon name="back" /></button><h1>Mis direcciones</h1></header>
+      <p class="nota">Son las direcciones que ya usaste en tus pedidos. Al pedir un servicio nuevo escribes la dirección de ese servicio.</p>
+      <ul class="direcciones" *ngIf="direcciones.length; else sinDirecciones">
+        <li *ngFor="let d of direcciones"><span class="tile"><ssc-icon name="pin" [size]="20" /></span><span>{{ d }}</span></li>
+      </ul>
+      <ng-template #sinDirecciones><p class="vacio">Todavía no has hecho pedidos, así que no hay direcciones.</p></ng-template>
+    </ng-container>
+
+    <!-- ============ PREGUNTAS FRECUENTES ============ -->
+    <ng-container *ngIf="vista === 'faq'">
+      <header class="barra"><button type="button" class="volver" aria-label="Volver" (click)="cerrarVista()"><ssc-icon name="back" /></button><h1>Preguntas frecuentes</h1></header>
+      <div class="faq">
+        <details *ngFor="let p of preguntas">
+          <summary>{{ p.pregunta }}<ssc-icon name="chevron-down" [size]="20" /></summary>
+          <p>{{ p.respuesta }}</p>
+        </details>
+      </div>
+      <a *ngIf="whatsapp" class="btn-secondary" [href]="whatsapp" target="_blank" rel="noopener noreferrer"><ssc-icon name="chat" [size]="22" /> ¿Otra duda? Escríbenos</a>
+    </ng-container>
+
+    <!-- ============ ELIMINAR CUENTA ============ -->
+    <ng-container *ngIf="vista === 'eliminar'">
+      <header class="barra"><button type="button" class="volver" aria-label="Volver" (click)="cerrarVista()"><ssc-icon name="back" /></button><h1>Eliminar mi cuenta</h1></header>
+      <section class="aviso-peligro">
+        <p><strong>Esta acción no se puede deshacer.</strong></p>
+        <ul>
+          <li>Borramos tu nombre, teléfono, correo y direcciones.</li>
+          <li>Si ya tenías pedidos, solo conservamos el registro del servicio (fecha, servicios y montos) sin tus datos personales.</li>
+          <li>No podrás eliminarla si tienes un pedido confirmado o en proceso.</li>
+        </ul>
+      </section>
+      <form (ngSubmit)="eliminarCuenta()" novalidate>
+        <label for="pw-eliminar">Escribe tu contraseña para confirmar</label>
+        <input id="pw-eliminar" class="field" name="pw" type="password" [(ngModel)]="passwordEliminar" maxlength="72" autocomplete="current-password">
+        <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+        <button type="submit" class="btn-peligro" [disabled]="busy">{{ busy ? 'Eliminando...' : 'Eliminar definitivamente' }}</button>
+        <button type="button" class="btn-secondary" (click)="cerrarVista()">Mejor no</button>
+      </form>
+    </ng-container>
+
+  </main>
+</ion-content>

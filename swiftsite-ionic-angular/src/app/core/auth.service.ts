@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import { SessionService, Usuario } from './session.service';
 
 interface TokenResponse { usuario: Usuario; token: string; }
-export interface Registro { nombre: string; correo: string; telefono: string; password: string; password_confirmation: string; }
+export interface Registro { nombre: string; correo: string; telefono: string; password: string; password_confirmation: string; acepta_terminos: boolean; claim_token?: string; }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -21,12 +21,14 @@ export class AuthService {
     await this.accept(data);
   }
 
-  async register(form: Registro): Promise<void> {
+  async register(form: Registro): Promise<boolean> {
     this.session.clear();
-    const data = await firstValueFrom(this.http.post<TokenResponse>(`${environment.apiUrl}/register`, {
+    const data = await firstValueFrom(this.http.post<TokenResponse | { verification_required: true }>(`${environment.apiUrl}/register`, {
       ...form, telefono: form.telefono || null, device_name: 'swiftsite-ionic',
     }));
+    if ('verification_required' in data) return false;
     await this.accept(data);
+    return true;
   }
 
   private async accept(data: TokenResponse): Promise<void> {

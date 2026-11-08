@@ -16,6 +16,13 @@ class CategoriaServicio extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
+        'icono',
+        'pregunta_tipo',
+        'pregunta_variante',
+        'pregunta_cantidad',
+        'unidad',
+        'nota',
+        'cantidad_max',
         'activo',
     ];
 
@@ -23,6 +30,7 @@ class CategoriaServicio extends Model
     {
         return [
             'activo' => 'boolean',
+            'cantidad_max' => 'integer',
         ];
     }
 

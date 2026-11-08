@@ -3,54 +3,111 @@
 ion-content { --background: #{$bone}; }
 .screen { @include screen(17px); }
 
-h1 { margin: 0; @include display(38px, 44px); }
+h1 { margin: 0; @include display(36px, 40px); }
+.sub { margin: 4px 0 0; font-size: 15px; color: $gris; }
+.estado { margin: 14px 0 0; color: $gris; }
 
+// ----- Pestañas -----
 .segmented {
-  margin-top: 16px; height: 56px; padding: 5px; display: flex;
-  background: #fff; border: 2px solid $ink; border-radius: 999px;
+  margin-top: 16px; height: 52px; padding: 4px; display: flex;
+  background: $superficie; border: 2px solid $borde; border-radius: 999px;
   button {
-    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
     background: transparent; border: 0; border-radius: 999px;
-    font-family: inherit; font-size: 18px; font-weight: 500; color: $ink; cursor: pointer;
-    &.active { background: $ink; color: #fff; font-weight: 600; }
+    font-family: inherit; font-size: 17px; font-weight: 500; color: $ink; cursor: pointer;
+    .cuenta { min-width: 22px; height: 22px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 999px; background: $aqua-suave; font-size: 13px; font-weight: 700; }
+    &.active { background: $activo; color: $activo-texto; font-weight: 700; .cuenta { background: rgba(255, 255, 255, .22); color: inherit; } }
   }
 }
 
-.lista { margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
-.vacio { text-align: center; color: $gris; }
+.lista { margin-top: 16px; display: flex; flex-direction: column; gap: 16px; padding-right: 4px; }
 
-.pedido { padding: 16px; @include card(22px); }
-.fila { display: flex; align-items: center; justify-content: space-between; }
-.id { font-size: 15px; color: $gris; }
-
-.badge { @include badge(#fff); }
-.badge.cotizado { background: #fff; border-style: dashed; }
-.badge.confirmado { @include badge($aqua-suave, $blue-dark, $blue); }
-.badge.proceso { @include badge($cielo); }
-.badge.finalizado { @include badge($ink, #fff, $ink); }
-
-h2 { margin: 12px 0 0; font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
-.meta { margin-top: 8px; display: flex; align-items: center; gap: 10px; font-size: 16px; ssc-icon { flex: none; } }
-
-.progreso {
-  margin-top: 14px; display: flex; gap: 7px;
-  span { flex: 1; height: 12px; border: 2px solid $ink; border-radius: 999px; background: #fff; &.done { background: $aqua; } }
+// ----- Tarjeta de pedido -----
+.pedido { padding: 16px; margin-bottom: 4px; @include card(24px); box-shadow: 4px 4px 0 $borde; }
+.cabeza { display: flex; align-items: flex-start; gap: 12px; }
+.tile {
+  width: 48px; height: 48px; flex: none; display: grid; place-items: center;
+  border: 2px solid $borde; border-radius: 50%; color: $tinta; background: $sol;
 }
-.etapas { margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; color: $gris; }
+.pedido[data-estado='confirmado'] .tile { background: $aqua; }
+.pedido[data-estado='proceso'] .tile { background: $cielo; }
+.pedido[data-estado='finalizado'] .tile { background: $aqua-suave; color: $ink; }
+.cabeza-txt { flex: 1; min-width: 0; }
+.fila { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.id { font-size: 14px; font-weight: 600; color: $gris; }
+h2 { margin: 6px 0 0; font-family: $font-ui; font-weight: 700; font-size: 19px; line-height: 24px; overflow-wrap: anywhere; }
 
-.pie { margin-top: 12px; }
-.total { @include display(28px); letter-spacing: -0.02em; margin-top: 0; &.solo { margin-top: 10px; } }
-.pedido > .fila.pie:only-of-type { margin-top: 8px; }
+.badge { @include badge($superficie, $ink, $borde); height: 24px; padding: 0 10px; font-size: 13px; font-weight: 700; flex: none; }
+.badge.cotizado { background: $sol; color: $tinta; }
+.badge.confirmado { @include badge($aqua, $tinta, $borde); height: 24px; padding: 0 10px; font-size: 13px; }
+.badge.proceso { @include badge($cielo, $tinta, $borde); height: 24px; padding: 0 10px; font-size: 13px; }
+.badge.finalizado { @include badge($panel, #fff, $borde); height: 24px; padding: 0 10px; font-size: 13px; }
 
-.btn-detalle { @include btn-secondary(48px, 17px); padding: 0 24px; }
+.datos {
+  margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 6px;
+  li { display: flex; align-items: center; gap: 10px; font-size: 16px; line-height: 21px; ssc-icon { flex: none; color: $blue; } }
+}
 
-.acciones { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+// ----- Avance del pedido -----
+.etapas {
+  margin: 16px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  li { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 600; color: $gris; }
+  .barra { height: 8px; border: 1.5px solid $borde; border-radius: 999px; background: $superficie; }
+  .hecha .barra { background: $aqua; }
+  .actual { color: $ink; font-weight: 700; }
+}
+
+.pie { margin-top: 16px; padding-top: 14px; border-top: 1.5px dashed $linea; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.monto { display: flex; flex-direction: column; small { font-size: 13px; color: $gris; line-height: 15px; } }
+.total { @include display(28px, 32px); letter-spacing: -0.02em; }
+.btn-detalle { @include btn-secondary(46px, 16px); padding: 0 22px; font-weight: 600; cursor: pointer; font-family: inherit; color: $ink; }
+
+// ----- Historial -----
+.acciones { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
 .btn-valorar {
-  height: 48px; padding: 0 22px; display: inline-flex; align-items: center; gap: 8px;
-  background: $aqua; border: 2px solid $ink; border-radius: 999px;
-  font-weight: 600; font-size: 17px; color: $ink; text-decoration: none;
+  height: 46px; padding: 0 22px; display: inline-flex; align-items: center; gap: 8px;
+  background: $aqua; border: 2px solid $borde; border-radius: 999px;
+  font-weight: 700; font-size: 16px; color: $tinta; text-decoration: none;
 }
 .valoracion { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; color: $gris; }
 .estrellas { display: inline-flex; }
-.pub { font-weight: 600; color: $blue-dark; }
 .problema { font-size: 15px; font-weight: 600; color: $blue; text-decoration: underline; }
+
+// ----- Vacío -----
+.vacio {
+  margin-top: 8px; padding: 28px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+  border: 2px dashed $borde; border-radius: 24px;
+  .vacio-ico { width: 60px; height: 60px; margin-bottom: 6px; display: grid; place-items: center; background: $sol; border: 2px solid $borde; border-radius: 50%; color: $tinta; }
+  strong { font-family: $font-ui; font-size: 18px; }
+  p { margin: 0; max-width: 28ch; font-size: 15px; line-height: 20px; color: $gris; }
+  .btn-primario { margin-top: 12px; height: 48px; padding: 0 24px; display: inline-flex; align-items: center; background: $aqua; border: 2px solid $borde; border-radius: 999px; box-shadow: 3px 3px 0 $borde; font-weight: 700; color: $tinta; text-decoration: none; }
+}
+
+.error { margin: 14px 0 0; color: $error; font-weight: 500; }
+.link { background: none; border: 0; padding: 0; font-family: inherit; font-size: inherit; font-weight: 600; color: $blue; text-decoration: underline; cursor: pointer; }
+
+// ----- Detalle (hoja inferior) -----
+.velo { position: fixed; inset: 0; background: rgba(11, 31, 58, .58); z-index: 20; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; max-width: 480px; max-height: 86vh; margin: 0 auto;
+  padding: 10px 20px calc(96px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; overflow-y: auto; // deja libre la barra de abajo
+  background: $bone; border: 2px solid $borde; border-bottom: 0; border-radius: 28px 28px 0 0;
+  .asa { align-self: center; width: 48px; height: 5px; border-radius: 999px; background: #B8C4D2; flex: none; }
+}
+.det-cab {
+  margin-top: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  small { font-size: 14px; font-weight: 600; color: $gris; }
+  h2 { margin: 2px 0 0; @include display(22px, 26px); }
+}
+.det-lineas {
+  margin: 14px 0 0; padding: 0 14px; list-style: none; @include card(18px);
+  li { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 700; & + li { border-top: 1px solid $linea; } }
+  .det-nombre { display: flex; flex-direction: column; font-size: 16px; small { font-weight: 400; font-size: 14px; color: $gris; } }
+}
+.det-resumen {
+  margin-top: 12px; padding: 14px 16px; background: $panel; border-radius: 20px; color: #fff;
+  > div { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: $menu; & + div { margin-top: 6px; } }
+  .det-total { margin-top: 10px; padding-top: 10px; border-top: 1px solid #3B506B; align-items: center; font-weight: 700; font-size: 17px; color: #fff; strong { @include display(30px, 32px); color: $cielo; } }
+}
+.det-datos { margin-top: 14px; li { align-items: flex-start; ssc-icon { margin-top: 1px; } } }
+.cerrar { width: 100%; margin-top: 16px; }

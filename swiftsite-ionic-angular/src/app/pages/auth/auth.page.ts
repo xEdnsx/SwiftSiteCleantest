@@ -18,21 +18,29 @@ export class AuthPage {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   register = this.route.snapshot.data['register'] === true;
-  datos = { nombre: '', correo: '', telefono: '', password: '', password_confirmation: '' };
+  datos = { nombre: '', correo: '', telefono: '', password: '', password_confirmation: '', acepta_terminos: false };
   busy = false;
   error = '';
   verClave = false;
-  ionViewDidLeave(): void { this.datos.password = this.datos.password_confirmation = ''; }
+  verificationRequired = false;
+  claimToken = '';
+  ionViewDidLeave(): void {
+    this.datos.password = this.datos.password_confirmation = '';
+    this.claimToken = '';
+    this.verificationRequired = false;
+  }
   async submit(): Promise<void> {
     if (this.busy) return;
     this.busy = true;
     this.error = '';
     try {
-      if (this.register) await this.auth.register(this.datos);
-      else await this.auth.login(this.datos.correo, this.datos.password);
+      if (this.register) {
+        const registered = await this.auth.register({ ...this.datos, ...(this.claimToken.trim() ? { claim_token: this.claimToken.trim() } : {}) });
+        if (!registered) { this.verificationRequired = true; return; }
+      } else await this.auth.login(this.datos.correo, this.datos.password);
       this.datos.password = this.datos.password_confirmation = '';
       const target = this.route.snapshot.queryParamMap.get('returnUrl');
-      await this.router.navigateByUrl(target === '/pedidos' || target === '/perfil' ? target : '/perfil', { replaceUrl: true });
+      await this.router.navigateByUrl(target === '/pedidos' || target === '/perfil' || target === '/cotizar/pedido' ? target : '/perfil', { replaceUrl: true });
     } catch (error) { this.error = httpError(error); }
     finally { this.busy = false; }
   }

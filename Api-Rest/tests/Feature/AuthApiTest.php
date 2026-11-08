@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Mail\ReclamarCuenta;
 use App\Models\Rol;
 use App\Models\Usuario;
+use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
@@ -14,10 +17,14 @@ class AuthApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['mail.default' => 'smtp']);
+        Mail::fake();
 
         foreach (['roles', 'usuarios', 'personal_access_tokens', 'categorias_servicio'] as $table) {
             (require glob(database_path("migrations/*_create_{$table}_table.php"))[0])->up();
         }
+        (require glob(database_path('migrations/*_add_consentimiento_to_usuarios.php'))[0])->up();
+        (require glob(database_path('migrations/*_permitir_cliente_sin_correo.php'))[0])->up();
     }
 
     private function credentials(): array
@@ -25,6 +32,7 @@ class AuthApiTest extends TestCase
         return [
             'nombre' => 'Cliente prueba', 'correo' => 'cliente@example.com',
             'password' => 'clave-segura-123', 'password_confirmation' => 'clave-segura-123',
+            'acepta_terminos' => true,
         ];
     }
 
@@ -45,6 +53,85 @@ class AuthApiTest extends TestCase
         $this->assertNotNull(PersonalAccessToken::findToken($response->json('token')));
         $this->bearer($response->json('token'))->get('/api/me')->assertOk()->assertJsonPath('correo', 'cliente@example.com');
         $this->bearer($response->json('token'))->postJson('/api/categorias', ['nombre' => 'Sillas'])->assertForbidden();
+    }
+
+    public function test_un_cliente_agregado_desde_el_panel_reclama_su_cuenta_al_registrarse(): void
+    {
+        $rol = Rol::firstOrCreate(['nombre_rol' => 'Cliente']);
+        $agregado = Usuario::create(['id_rol' => $rol->getKey(), 'nombre' => 'Ana (panel)', 'telefono' => '7000-1111', 'correo' => 'cliente@example.com']);
+        $this->assertNull($agregado->password_hash);
+        $anterior = $agregado->createToken('legacy')->plainTextToken;
+
+        $this->postJson('/api/register', $this->credentials())->assertStatus(202)->assertJsonMissingPath('token');
+        $this->assertNull($agregado->fresh()->password_hash);
+        $this->assertSame('Ana (panel)', $agregado->fresh()->nombre);
+        Mail::assertSent(ReclamarCuenta::class, fn ($mail) => $mail->hasTo('cliente@example.com'));
+        $codigo = Mail::sent(ReclamarCuenta::class)->first()->codigo;
+        $respuesta = $this->postJson('/api/register', $this->credentials() + ['claim_token' => $codigo])->assertCreated()->assertJsonPath('usuario.nombre', 'Cliente prueba');
+
+        // Es la misma persona: no se duplica, conserva su teléfono y ahora puede entrar.
+        $this->assertSame(1, Usuario::count());
+        $agregado->refresh();
+        $this->assertSame($agregado->getKey(), $respuesta->json('usuario.id_usuario'));
+        $this->assertSame('7000-1111', $agregado->telefono);
+        $this->assertTrue(Hash::check('clave-segura-123', $agregado->password_hash));
+        $this->assertNotNull($agregado->terminos_aceptados_en);
+        $this->assertNull(PersonalAccessToken::findToken($anterior));
+        $this->postJson('/api/login', ['correo' => 'cliente@example.com', 'password' => 'clave-segura-123'])->assertOk();
+
+        // Una vez reclamada, nadie más puede registrarse con ese correo.
+        $this->postJson('/api/register', $this->credentials())->assertUnprocessable()->assertJsonValidationErrors('correo');
+    }
+
+    public function test_una_cuenta_sin_contrasena_que_no_es_de_cliente_no_se_puede_reclamar(): void
+    {
+        $admin = Rol::firstOrCreate(['nombre_rol' => 'Administrador']);
+        Usuario::create(['id_rol' => $admin->getKey(), 'nombre' => 'Admin', 'correo' => 'cliente@example.com']);
+
+        $this->postJson('/api/register', $this->credentials())->assertUnprocessable()->assertJsonValidationErrors('correo');
+        $this->assertNull(Usuario::firstOrFail()->password_hash);
+        Mail::assertNothingSent();
+    }
+
+    public function test_claim_code_cannot_be_forged_expired_replayed_or_used_for_another_email(): void
+    {
+        $rol = Rol::create(['nombre_rol' => 'Cliente']);
+        $usuario = Usuario::create(['id_rol' => $rol->getKey(), 'nombre' => 'Original', 'correo' => 'cliente@example.com']);
+        $this->postJson('/api/register', $this->credentials())->assertStatus(202);
+        $codigo = Mail::sent(ReclamarCuenta::class)->first()->codigo;
+        $this->postJson('/api/register', $this->credentials() + ['claim_token' => 'falso'])->assertUnprocessable();
+        $this->assertNull($usuario->fresh()->password_hash);
+        $this->assertSame(0, PersonalAccessToken::count());
+        $this->travel(31)->minutes();
+        $this->postJson('/api/register', $this->credentials() + ['claim_token' => $codigo])->assertUnprocessable();
+        $this->travelBack();
+        $usuario->update(['correo' => 'otro@example.com']);
+        $this->postJson('/api/register', array_replace($this->credentials(), ['correo' => 'otro@example.com', 'claim_token' => $codigo]))->assertUnprocessable();
+        $usuario->update(['correo' => 'cliente@example.com']);
+        $this->postJson('/api/register', $this->credentials() + ['claim_token' => $codigo])->assertCreated();
+        $this->postJson('/api/register', $this->credentials() + ['claim_token' => $codigo])->assertUnprocessable();
+    }
+
+    public function test_claim_resend_is_throttled_and_does_not_change_the_account(): void
+    {
+        $rol = Rol::create(['nombre_rol' => 'Cliente']);
+        $usuario = Usuario::create(['id_rol' => $rol->getKey(), 'nombre' => 'Original', 'correo' => 'cliente@example.com']);
+        $this->postJson('/api/register', $this->credentials())->assertStatus(202);
+        $this->postJson('/api/register', $this->credentials())->assertStatus(202);
+        Mail::assertSentCount(1);
+        $this->assertNull($usuario->fresh()->password_hash);
+        $this->assertSame('Original', $usuario->fresh()->nombre);
+    }
+
+    public function test_log_mail_transport_fails_closed_without_changing_the_account(): void
+    {
+        config(['mail.default' => 'log']);
+        Mail::swap(new MailManager($this->app));
+        $rol = Rol::create(['nombre_rol' => 'Cliente']);
+        $usuario = Usuario::create(['id_rol' => $rol->getKey(), 'nombre' => 'Original', 'correo' => 'cliente@example.com']);
+        $this->postJson('/api/register', $this->credentials())->assertStatus(503);
+        $this->assertNull($usuario->fresh()->password_hash);
+        $this->assertSame(0, PersonalAccessToken::count());
     }
 
     public function test_registration_validation_and_role_escalation_are_rejected(): void

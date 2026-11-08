@@ -4,48 +4,200 @@ ion-content { --background: #{$bone}; }
 
 .screen { @include screen(17px); }
 
-h1 { margin: 0; @include display(31px, 34px); }
-.lead { margin: 8px 0 0; font-size: 16px; line-height: 21px; color: $gris; }
-
+.top { display: flex; align-items: center; gap: 14px; }
+.back { @include back-button; padding: 0; }
+.label { font-size: 14px; font-weight: 600; color: $blue; line-height: 16px; }
+h1 { margin: 2px 0 0; @include display(31px, 34px); }
+.lead { margin: 12px 0 0; font-size: 16px; line-height: 21px; color: $gris; }
 .status { margin: 16px 0 0; color: $gris; font-weight: 500; }
-.error { margin: 16px 0 0; color: $error; font-weight: 500; }
-
-form { margin-top: 12px; display: flex; flex-direction: column; }
-
-label { margin-top: 18px; font-weight: 600; font-size: 17px; }
-
-select, input {
-  @include field();
-  margin-top: 8px;
+.error { margin: 14px 0 0; color: $error; font-weight: 500; }
+.nota { margin: 12px 0 0; font-size: 15px; line-height: 20px; color: $gris; }
+.lbl {
+  margin: 18px 0 0; font-family: inherit; font-weight: 600; font-size: 17px;
+  small { font-weight: 400; font-size: 14px; color: $gris; }
 }
-select { appearance: none; padding-right: 44px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230B1F3A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center; }
 
-.btn-primary { @include btn-primary(); margin-top: 24px; }
-.btn-retry { @include btn-secondary(48px, 17px); margin-top: 16px; padding: 0 24px; align-self: flex-start; }
+// ----- Botones y enlaces -----
+.btn-primary { @include btn-primary(54px, 19px); margin-top: 14px; }
+.btn-secondary { @include btn-secondary(54px, 18px); margin-top: 12px; width: 100%; }
+.link { margin-top: 14px; align-self: center; background: none; border: 0; padding: 0; font-family: inherit; font-size: 16px; font-weight: 600; color: $blue; text-decoration: underline; cursor: pointer; &.inline { margin: 0; font-size: inherit; } }
+
+// ----- Progreso -----
+.progreso {
+  margin: 16px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  li { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: $gris; }
+  .barra { height: 6px; border-radius: 999px; background: $linea; }
+  .hecho .barra, .actual .barra { background: $aqua; box-shadow: 0 0 0 1.5px $borde; }
+  .hecho { color: $ink; }
+  .actual { color: $ink; font-weight: 700; }
+}
+
+// ----- 1 · Categorías -----
+.cats { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-right: 4px; }
+.cat {
+  @include card(22px);
+  padding: 14px; margin-bottom: 4px; box-shadow: 4px 4px 0 $borde;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+  font-family: inherit; color: $ink; cursor: pointer;
+  &:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 $borde; }
+  .cat-icon {
+    width: 56px; height: 56px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+    border: 2px solid $borde; border-radius: 50%; color: $tinta; background: $sol;
+    &[data-color='1'] { background: $aqua; }
+    &[data-color='2'] { background: $cielo; }
+  }
+  .cat-nombre { font-family: $font-ui; font-weight: 700; font-size: 18px; line-height: 22px; }
+  .cat-desde { font-size: 14px; font-weight: 600; color: $blue; }
+  .cat-desc { margin-top: 6px; font-size: 13px; line-height: 17px; color: $gris; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+}
+
+.promesa {
+  margin: 18px 0 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  background: $aqua-suave; border: 2px dashed $borde; border-radius: 20px;
+  .promesa-ico { width: 40px; height: 40px; flex: none; display: grid; place-items: center; background: $sol; border: 2px solid $borde; border-radius: 50%; color: $tinta; }
+  p { margin: 0; font-size: 15px; line-height: 20px; color: $ink; strong { font-weight: 700; } }
+}
+
+// Resumen flotante de la lista (queda pegado abajo mientras sigues eligiendo)
+.barra-lista {
+  position: sticky; bottom: 10px; z-index: 2; margin-top: auto; width: 100%; padding: 8px 14px 8px 8px;
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  background: $panel; border: 2px solid $borde; border-radius: 999px; box-shadow: 3px 3px 0 $borde;
+  font-family: inherit; color: #fff; cursor: pointer;
+  .bl-icono { width: 42px; height: 42px; flex: none; display: grid; place-items: center; background: $aqua; border-radius: 50%; color: $tinta; }
+  .bl-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; strong { font-size: 16px; line-height: 19px; } small { font-size: 14px; line-height: 17px; color: $menu; } }
+  .bl-ir { display: inline-flex; align-items: center; gap: 2px; font-weight: 700; color: $cielo; }
+}
+
+// ----- 2 · Detalle -----
+.chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { @include pill(40px, 15px); padding: 0 14px; &.on { background: $activo; color: $activo-texto; font-weight: 600; } }
+
+.opts { margin-top: 10px; display: grid; gap: 10px; &.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } &.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.opt {
+  min-height: 78px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: $superficie; border: 2px solid $borde; border-radius: 18px; font-family: inherit; color: $ink; cursor: pointer;
+  .opt-nombre { font-size: 15px; font-weight: 500; line-height: 18px; }
+  small { font-size: 12.5px; line-height: 15px; color: $gris; }
+  .opt-precio { @include display(20px); margin-top: 2px; }
+  &.on { background: $aqua-suave; border-color: $blue; box-shadow: 0 0 0 1px $blue inset; .opt-nombre { font-weight: 600; } }
+}
+
+.extras { margin-top: 10px; padding: 0 14px; @include card(20px); }
+.extra {
+  min-height: 58px; display: flex; align-items: center; gap: 12px;
+  & + & { border-top: 1px solid $linea; }
+  .extra-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; strong { font-size: 16px; font-weight: 600; } small { font-size: 14px; color: $gris; } }
+}
+.switch {
+  flex: none; position: relative; width: 52px; height: 30px; padding: 0; background: $linea; border: 2px solid $borde; border-radius: 999px; cursor: pointer;
+  span { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: $ink; transition: transform .15s; }
+  &.on { background: $aqua; span { background: $tinta; transform: translateX(22px); } }
+}
+
+.cantidad {
+  margin-top: 10px; min-height: 62px; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  @include card(20px);
+  > span { font-size: 17px; }
+}
+.stepper {
+  display: flex; align-items: center; gap: 14px;
+  button {
+    width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center;
+    background: $superficie; border: 2px solid $borde; border-radius: 50%; color: $ink; cursor: pointer;
+    &.plus { background: $aqua; }
+    &:disabled { opacity: .4; cursor: not-allowed; }
+  }
+  .num { min-width: 28px; text-align: center; @include display(28px); }
+}
+.subtotal {
+  margin-top: 16px; height: 56px; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: $panel; border-radius: 20px; color: #fff;
+  span { font-size: 16px; color: $menu; }
+  strong { @include display(32px); letter-spacing: -0.02em; color: $cielo; }
+}
+
+// ----- 3 · Lista -----
+.items { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.item {
+  @include card(20px);
+  padding: 9px 14px; display: flex; align-items: center; gap: 12px;
+  .item-icon { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; background: $aqua-suave; border-radius: 14px; }
+  .item-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; strong { font-family: $font-ui; font-weight: 700; font-size: 17px; line-height: 21px; } small { font-size: 14px; line-height: 18px; color: $gris; } }
+  .item-precio { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; span { @include display(21px); } }
+  .quitar { background: none; border: 0; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: $gris; cursor: pointer; text-decoration: underline; }
+}
+.mas { height: 44px; font-size: 16px; margin-top: 8px; }
+
+.select {
+  @include field(52px); width: 100%; margin-top: 8px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font-family: inherit; font-size: 18px; font-weight: 500; text-align: left; color: $ink; cursor: pointer;
+  ssc-icon { flex: none; }
+}
+.info { margin: 10px 0 0; padding: 10px 14px; background: $aqua-suave; border: 1.5px solid $blue; border-radius: 16px; font-size: 15px; line-height: 20px; strong { font-weight: 700; } }
+
+.zonas { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.zona {
+  width: 100%; min-height: 62px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; text-align: left;
+  @include card(18px); font-family: inherit; color: $ink; cursor: pointer;
+  .radio { flex: none; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid $borde; border-radius: 50%; background: $superficie; span { width: 12px; height: 12px; border-radius: 50%; background: transparent; } }
+  .zona-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; strong { font-size: 17px; font-weight: 600; } small { font-size: 13.5px; line-height: 17px; color: $gris; } }
+  .zona-recargo { flex: none; padding: 3px 10px; background: $sol; border: 1.5px solid $borde; border-radius: 999px; font-size: 13.5px; font-weight: 700; color: $tinta; &.gratis { background: $aqua-suave; } }
+  &.on { background: $aqua-suave; border-color: $blue; box-shadow: 0 0 0 1px $blue inset; .radio span { background: $ink; } }
+}
+.zona-resumen { margin: 10px 0 0; font-size: 15px; line-height: 20px; color: $gris; strong { color: $ink; } }
+
+.zona-chip {
+  align-self: flex-start; margin-top: 8px; padding: 5px 12px; background: $sol; border: 1.5px solid $borde; border-radius: 999px; font-size: 14px; font-weight: 600; color: $tinta;
+  &.gratis { background: $aqua-suave; }
+}
 
 .result {
-  margin-top: 20px;
-  padding: 16px 18px;
-  background: $ink;
-  border-radius: 22px;
-  color: #fff;
-  h2 { margin: 0 0 10px; font-family: $font-ui; font-weight: 700; font-size: 18px; }
-  .row { display: flex; justify-content: space-between; font-size: 17px; color: $menu; margin-top: 6px; }
+  margin-top: 14px; padding: 14px 18px 16px; background: $panel; border-radius: 24px; color: #fff;
+  .sello { display: inline-block; padding: 4px 12px; background: $aqua; color: $tinta; border-radius: 999px; font-size: 13px; font-weight: 700; }
+  .row { display: flex; justify-content: space-between; gap: 12px; font-size: 16px; color: $menu; margin-top: 8px; }
   .total {
-    margin-top: 12px;
-    padding-top: 14px;
-    border-top: 1px solid #3B506B;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: $font-ui;
-    font-weight: 700;
-    font-size: 20px;
-    strong { @include display(40px, 40px); color: $cielo; }
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid #3B506B;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: $font-ui; font-weight: 700; font-size: 19px;
+    strong { @include display(44px, 44px); color: $cielo; }
   }
 }
 
-.wizard-link {
-  margin-top: 20px;
-  @include btn-secondary(54px, 18px);
+// ----- Error de carga -----
+.alerta {
+  margin-top: 20px; padding: 18px; display: flex; flex-direction: column; gap: 6px;
+  background: $sol; border: 2px solid $borde; border-radius: 22px; color: $tinta;
+  strong { font-size: 20px; font-family: $font-ui; font-weight: 700; }
+  span { font-size: 16px; line-height: 21px; }
+  .btn-primary { margin-top: 14px; background: #fff; }
+  .btn-secondary { margin-top: 10px; }
+}
+
+// ----- Invitado: panel para entrar -----
+.velo { position: fixed; inset: 0; background: rgba(11, 31, 58, .58); z-index: 20; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; max-width: 480px; margin: 0 auto;
+  padding: 10px 20px calc(96px + env(safe-area-inset-bottom)); display: flex; flex-direction: column;
+  background: $bone; border: 2px solid $borde; border-bottom: 0; border-radius: 28px 28px 0 0;
+  .asa { align-self: center; width: 48px; height: 5px; border-radius: 999px; background: #B8C4D2; }
+  .sheet-head { margin-top: 16px; display: flex; align-items: center; gap: 14px; h2 { margin: 0; @include display(26px, 30px); } }
+  .sheet-icon { width: 52px; height: 52px; flex: none; display: flex; align-items: center; justify-content: center; background: $sol; border: 2px solid $borde; border-radius: 16px; color: $tinta; }
+  p { margin: 12px 0 0; font-size: 17px; line-height: 23px; color: $gris; }
+  .btn-primary { margin-top: 20px; }
+}
+
+// ----- Selector de departamento -----
+.sheet-lista { max-height: 86vh; }
+.sheet-titulo { margin: 14px 0 0; @include display(24px, 28px); }
+.opciones {
+  margin: 12px -8px 0; padding: 0 8px; list-style: none; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  li + li { border-top: 1px solid $linea; }
+  button {
+    width: 100%; min-height: 52px; padding: 0 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: none; border: 0; font-family: inherit; font-size: 18px; font-weight: 500; text-align: left; color: $ink; cursor: pointer;
+    &.on { font-weight: 700; color: $blue; }
+  }
 }

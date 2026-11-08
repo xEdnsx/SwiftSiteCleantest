@@ -42,10 +42,20 @@ Se utiliza `Usuario`, con `correo` y `password_hash`, para emitir tokens Bearer 
 
 | Metodo | Ruta | Descripcion |
 | --- | --- | --- |
-| POST | `/register` | Registro publico, siempre como Cliente; devuelve usuario y token (201) |
+| POST | `/register` | Registro publico, siempre como Cliente; cuenta nueva: usuario y token (201). Cuenta de Cliente existente sin contrasena: verificacion por correo (202), sin acceso ni cambios hasta confirmar el codigo |
 | POST | `/login` | Valida correo y password; devuelve usuario y token (200) |
 | GET | `/me` o `/user` | Devuelve el usuario autenticado y su rol (200) |
 | POST | `/logout` | Revoca solo el token utilizado en la solicitud (204) |
+
+### Activacion segura de una cuenta agregada por el panel
+
+Para una cuenta Cliente existente sin contrasena, el primer `POST /register` envia un codigo cifrado al correo registrado. Devuelve `202` con `verification_required: true`, sin usuario ni token de Sanctum. No cambia nombre, contrasena, telefono ni pedidos.
+
+La persona copia el codigo del correo y repite el formulario de registro agregando `claim_token`. Laravel verifica integridad, cuenta, correo y caducidad de 30 minutos, bajo bloqueo transaccional. Solo entonces configura la contrasena hasheada y devuelve 201. El codigo no puede volver a activar una cuenta ya configurada; los tokens anteriores se revocan. Codigos falsos, caducados o correspondientes a otra cuenta devuelven 422. Las cuentas Administrador y las cuentas con contrasena nunca se reclaman por este mecanismo.
+
+El envio se limita por correo a una vez por minuto, ademas del limite general de registro. El codigo solo se entrega por correo; no se devuelve en JSON ni se registra en logs. Configurar un transporte de correo real en el entorno (`MAIL_MAILER`, host, puerto y credenciales propias). Con transportes `log` o `array`, la activacion falla de forma segura con 503 y conserva la cuenta. No modificar ni publicar el `.env` para compartir credenciales. En las pruebas se usa un fake o un servidor SMTP local aislado.
+
+Los seeders de zonas y tarifas ahora solo crean entradas faltantes: volver a ejecutarlos no cambia recargos, precios ni visibilidad de registros existentes, incluidos los personalizados o antiguos.
 
 Ejemplo de cuerpo para `/api/register`:
 
@@ -78,7 +88,7 @@ Campos de creacion:
 
 - Categoria: `nombre` (obligatorio, unico, maximo 80), `descripcion` (opcional, admite null, maximo 300), `activo` (opcional, booleano).
 - Tarifa: `id_categoria` (obligatorio y existente), `tipo_item` (obligatorio, maximo 100), `material` (opcional, admite null, maximo 80), `precio_unitario` (obligatorio, entre 0 y 99999999.99, hasta dos decimales), `activo` (opcional).
-- Zona: `nombre` (obligatorio, unico, maximo 100), `recargo` (opcional, entre 0 y 99999999.99, hasta dos decimales), `activo` (opcional).
+- Zona: `nombre` (obligatorio, unico, maximo 100), `recargo` (opcional, entre 0 y 99999999.99, hasta dos decimales), `activo` (opcional). El panel no crea ni borra zonas (vienen de `ZonasCoberturaSeeder`): solo envia `activo` y `recargo`. Una zona desactivada deja de aparecer en `GET /zonas?activo=1` y la cotizacion o el pedido nuevo en esa zona responden 422; los pedidos ya creados no cambian.
 
 En actualizaciones se envian solo los campos a cambiar. Los importes se devuelven como cadenas con dos decimales. Los campos adicionales no se asignan al modelo.
 
@@ -97,3 +107,41 @@ Ejemplo de creacion de tarifa:
 ```
 
 Pruebas: `php artisan test`. Los tests usan SQLite en memoria; no modifican la base de datos de la aplicacion. Las migraciones productivas contienen `ALTER TABLE ... ADD CONSTRAINT` especifico de MySQL, por lo que los tests de catalogos crean un esquema SQLite de prueba.
+
+## Reportes de problemas (app del cliente)
+
+Requieren sesion (`Authorization: Bearer <token>`).
+
+- `POST /api/reportes` (limite 10 por minuto): `id_pedido` (entero), `motivo` (`Limpieza incompleta`, `Daño en mi pertenencia`, `Llegaron tarde`, `Cobro incorrecto`, `Trato del personal` u `Otro`) y `descripcion` (entre 10 y 500 caracteres). Responde 201 con el reporte (`id_reporte`, `id_pedido`, `motivo`, `descripcion`, `estado`, `respuesta`, `fecha_creacion`). El estado inicial siempre es `Recibido`; `id_usuario`, `estado` y `respuesta` no se aceptan.
+- `GET /api/mis-reportes`: reportes de la persona, del mas reciente al mas antiguo.
+
+Errores: 404 si el pedido no existe o es de otra persona; 422 si el pedido no esta `Finalizado`, si ya hay un reporte abierto de ese pedido (se puede volver a reportar cuando el anterior pasa a `Resuelto`) o si falla la validacion. Al eliminar su cuenta, el texto de los reportes se reemplaza por `Texto eliminado por el titular`.
+
+## Valoraciones (app del cliente)
+
+Requieren sesion.
+
+- `POST /api/valoraciones` (limite 10 por minuto): `id_pedido`, `estrellas` (1 a 5), `aspectos` (opcional; sin repetir, entre `Puntualidad`, `Limpieza`, `Buen trato` y `Precio justo`) y `comentario` (opcional, hasta 500 caracteres). Responde 201 con la valoracion (`id_valoracion`, `id_pedido`, `estrellas`, `aspectos`, `comentario`, `estado`, `fecha_creacion`). Nace siempre `Pendiente`; `id_usuario` y `estado` no se aceptan.
+- `GET /api/mis-valoraciones`: valoraciones de la persona.
+- `GET /api/valoraciones-publicas` (publica, sin sesion; limite 60 por minuto): las opiniones que el administrador decidio mostrar en el Inicio de la app. Solo las `Publicada`, como maximo 5 (las mas recientes). Cada una trae `id_valoracion`, `estrellas`, `aspectos`, `comentario`, `nombre` (abreviado, por ejemplo `Ana M.`) y `fecha`; nunca incluye correo, telefono ni datos del pedido.
+
+Errores: 404 si el pedido no existe o es de otra persona; 422 si el pedido no esta `Finalizado`, si ya valoro ese pedido (`Ya valoraste este pedido.`) o si falla la validacion. `GET /api/mis-pedidos` incluye en cada pedido `valoracion` (`id_valoracion`, `estrellas`, `estado`, o `null`) y `reportes` (`id_reporte`, `motivo`, `estado`). Al eliminar su cuenta, el comentario de sus valoraciones se borra.
+
+## Panel administrativo: reportes, valoraciones y pendientes
+
+Requieren sesion con rol Administrador (403 en otro caso).
+
+| Metodo | Ruta | Resultado |
+| --- | --- | --- |
+| GET | `/api/admin/reportes` | Reportes con `usuario` y `pedido`. Los abiertos van primero; filtros `?estado=` y `?buscar=` (`R-0004` busca el reporte, `#0004` el pedido, otro texto el nombre o correo del cliente). |
+| PATCH | `/api/admin/reportes/{id}` | Cambia `estado` y/o `respuesta` (hasta 500; el texto vacio se guarda como null). Para pasar a `Resuelto` hace falta una respuesta: 422 si falta. Un reporte `Resuelto` ya no se puede modificar (422 en `estado`). |
+| GET | `/api/admin/valoraciones` | Valoraciones con `usuario` y `pedido`; primero las `Pendiente`. Filtro `?estado=`. |
+| PATCH | `/api/admin/valoraciones/{id}` | Cambia `estado` a `Pendiente`, `Publicada` (mostrar en la app) u `Oculta`. Si ya hay 5 `Publicada`, pasar otra a `Publicada` responde 422 en `estado` (`Ya hay 5 valoraciones en la app. Oculta una para mostrar otra.`). El panel decide cuales se ven; buenas o malas, ninguna se filtra por estrellas. |
+| DELETE | `/api/admin/valoraciones/{id}` | Elimina la valoracion (204). |
+| GET | `/api/admin/pendientes` | Contadores para el menu del panel: `pedidos_por_confirmar`, `reportes_abiertos` y `valoraciones_pendientes`. |
+
+Clientes (`/api/admin/clientes`): `nombre` es obligatorio; `telefono` y `correo` son opcionales, pero hace falta al menos uno de los dos (422 si faltan ambos). La direccion no se pide: el cliente la escribe en cada cotizacion. Un cliente creado sin correo no puede entrar a la app hasta crear su cuenta; a quien ya tiene cuenta no se le puede quitar el correo.
+
+`GET /api/mis-reportes` devuelve la `respuesta` del equipo y `fecha_actualizacion`; asi la app muestra la respuesta al cliente.
+
+Los pedidos del panel (`/api/admin/pedidos`) tambien traen `reportes` y `valoracion`. Pruebas: `ReportesApiTest`, `ReportesAdminApiTest` y `ValoracionesApiTest`.

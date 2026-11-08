@@ -1,34 +1,80 @@
 @use '../../../styles/ssc' as *;
 
-// Barra de navegación inferior (mockups: 91 px, píldora cian en la pestaña activa)
+// Barra de navegación flotante, con "burbuja": la pestaña activa sale de la barra
+// dentro de un círculo cian, y el círculo "muerde" el borde de la barra.
 ion-tab-bar {
-  --background: #fff;
+  --background: transparent;
   --border: none;
-  height: 91px;
-  padding: 10px 8px 0;
-  align-items: flex-start;
-  border-top: 2px solid $ink;
+  position: relative;
+  z-index: 5;
+  // Mismo ancho total que el contenido de las pantallas (480 de máximo con 20 de relleno), para que la barra
+  // quede alineada con las tarjetas y centrada. Ionic fuerza box-sizing: content-box en la barra, por eso se
+  // descuentan a mano el relleno (6 + 6) y el borde (2 + 2).
+  width: calc(100% - 40px - 16px);
+  max-width: calc(440px - 16px);
+  height: 56px;
+  margin: 0 auto calc(10px + env(safe-area-inset-bottom));
+  padding: 0 6px;
+  align-items: center;
   contain: none;
+  overflow: visible;
+  background: $superficie;
+  border: 2px solid $borde;
+  border-radius: 22px;
+  box-shadow: 3px 3px 0 $borde;
 }
 
 ion-tab-button {
-  --color: #{$ink};
+  --color: #{$gris};
   --color-selected: #{$ink};
   --background: transparent;
   --background-focused: transparent;
+  --ripple-color: transparent;
   max-width: none;
-  height: 56px;
-  font-size: 13px;
-  font-weight: 500;
+  height: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  overflow: visible;
+  contain: none;
 }
 
 ion-tab-button::part(native) {
-  border-radius: 18px;
-  gap: 3px;
+  gap: 2px;
+  padding-top: 5px;
+  overflow: visible;
 }
 
-ion-tab-button.tab-selected::part(native) {
-  background: $aqua-suave;
+ssc-icon {
+  position: relative;
+  isolation: isolate;
+  transition: transform .22s cubic-bezier(.3, 1.4, .5, 1);
 }
 
-ion-tab-button.tab-selected { font-weight: 700; }
+// La burbuja de la pestaña activa
+ion-tab-button.tab-selected {
+  font-weight: 700;
+
+  ssc-icon {
+    color: $tinta;
+    transform: translateY(-11px);
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      left: 50%;
+      top: 50%;
+      width: 40px;
+      height: 40px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: $aqua;
+      border: 2px solid $borde;
+      box-shadow: 0 0 0 4px $bone;   // el "corte" en la barra
+    }
+  }
+  ion-label { transform: translateY(-1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ssc-icon { transition: none; }
+}

@@ -18,6 +18,8 @@ class TarifaItem extends Model
         'id_categoria',
         'tipo_item',
         'material',
+        'detalle',
+        'descripcion',
         'precio_unitario',
         'activo',
     ];

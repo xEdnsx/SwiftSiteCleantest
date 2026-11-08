@@ -1,0 +1,96 @@
+<ion-content>
+  <main class="screen">
+    <ng-container *ngIf="!enviado; else listo">
+      <header class="top">
+        <a routerLink="/pedidos" class="back" aria-label="Volver"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
+        <h1>Reportar un problema</h1>
+      </header>
+
+      <p *ngIf="cargando" class="estado" role="status">Cargando tu pedido…</p>
+
+      <section *ngIf="!cargando && errorCarga" class="aviso" role="alert">
+        <ssc-icon name="warning" [size]="22" />
+        <p>{{ errorCarga }}</p>
+        <button *ngIf="!pedido" type="button" class="btn-secundario" (click)="cargar()">Reintentar</button>
+        <a routerLink="/pedidos" class="btn-secundario">Volver a mis pedidos</a>
+      </section>
+
+      <ng-container *ngIf="!cargando && !errorCarga && pedido && vista">
+        <p class="intro">Cuéntanos qué pasó y lo revisamos.</p>
+
+        <h2>¿De qué pedido?</h2>
+        <div class="pedido">
+          <span class="tile"><ssc-icon name="check" [size]="24" [strokeWidth]="2.4" /></span>
+          <div class="pedido-txt">
+            <div class="meta">Pedido {{ vista.id }} · {{ pedido.estado }}</div>
+            <div class="titulo">{{ vista.titulo }}</div>
+            <div class="meta">{{ vista.fecha }} · {{ vista.zona }}</div>
+          </div>
+        </div>
+
+        <section *ngIf="previo as r; else nuevo" class="previo" role="status">
+          <div class="previo-top">
+            <span class="tile-sol"><ssc-icon name="clock" [size]="20" /></span>
+            <h2>Ya reportaste este pedido</h2>
+          </div>
+          <p>Enviaste el reporte <strong>{{ numeroReporte(r.id_reporte) }}</strong> ({{ r.motivo }}) el {{ fechaCorta(r.fecha_creacion) }} y sigue abierto. Lo estamos revisando<ng-container *ngIf="contacto">; te respondemos a {{ contacto }}</ng-container>.</p>
+          <div class="previo-estado"><span class="estado-badge">{{ r.estado }}</span></div>
+          <p *ngIf="r.respuesta" class="previo-resp"><strong>Respuesta del equipo:</strong> {{ r.respuesta }}</p>
+          <p class="previo-nota">Cuando lo resolvamos podrás enviar otro reporte de este pedido si hace falta.</p>
+          <a routerLink="/pedidos" class="btn-primary">Volver a mis pedidos</a>
+        </section>
+
+        <ng-template #nuevo>
+          <section *ngIf="resuelto as r" class="respuesta" role="status">
+            <div class="previo-top">
+              <span class="tile-sol"><ssc-icon name="check" [size]="20" [strokeWidth]="2.6" /></span>
+              <h2>Respuesta a tu reporte {{ numeroReporte(r.id_reporte) }}</h2>
+            </div>
+            <p class="respuesta-txt">{{ r.respuesta }}</p>
+            <p class="previo-nota">{{ r.motivo }} · resuelto el {{ fechaCorta(r.fecha_actualizacion || r.fecha_creacion) }}. Si pasó otra cosa, puedes enviar un reporte nuevo aquí abajo.</p>
+          </section>
+
+          <h2 id="lbl-motivo">¿Qué pasó con {{ cosa.texto }}?</h2>
+          <div class="pills" role="radiogroup" aria-labelledby="lbl-motivo">
+            <button *ngFor="let m of motivos" type="button" role="radio" class="pill" [class.active]="motivo === m" [attr.aria-checked]="motivo === m" (click)="elegir(m)">
+              <ssc-icon *ngIf="motivo === m" name="check" [size]="16" [strokeWidth]="2.6" />{{ m }}
+            </button>
+          </div>
+
+          <p *ngIf="guia" class="guia" aria-live="polite">{{ guia }}</p>
+
+          <label class="h2" for="descripcion">Descríbelo</label>
+          <textarea id="descripcion" name="descripcion" [(ngModel)]="descripcion" rows="4" [attr.maxlength]="max + 100" [attr.placeholder]="ejemplo"></textarea>
+          <div class="contador" [class.excede]="largo > max">{{ largo }} / {{ max }}</div>
+
+          <aside class="contacto" *ngIf="contacto">
+            <span class="tile-sol"><ssc-icon name="phone" [size]="20" /></span>
+            <p><strong>Te respondemos a tus datos del perfil:</strong> {{ contacto }}.</p>
+          </aside>
+
+          <p *ngIf="errorEnvio" class="error" role="alert">{{ errorEnvio }}</p>
+          <p *ngIf="!errorEnvio && !formulario.valido && (motivo || descripcion)" class="falta">{{ formulario.falta }}</p>
+
+          <button type="button" class="btn-primary" [disabled]="!formulario.valido || enviando" (click)="enviar()">{{ enviando ? 'Enviando…' : 'Enviar reporte' }}</button>
+          <a routerLink="/pedidos" class="btn-secundario">Cancelar</a>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #listo>
+      <div class="exito-marca"><ssc-icon name="check" [size]="46" [strokeWidth]="3" /></div>
+      <h1 class="exito">Reporte enviado</h1>
+      <p class="exito-txt">Lo recibió el equipo de SwiftSite Clean. Te respondemos pronto.</p>
+
+      <section class="resumen" *ngIf="enviado as r">
+        <div class="resumen-top"><span class="num">Reporte {{ numeroReporte(r.id_reporte) }}</span><span class="estado-badge">{{ r.estado }}</span></div>
+        <div class="fila"><span>Pedido</span><strong>{{ numeroPedido(r.id_pedido) }}<ng-container *ngIf="vista"> · {{ vista.titulo }}</ng-container></strong></div>
+        <div class="fila"><span>Motivo</span><strong>{{ r.motivo }}</strong></div>
+        <div class="fila" *ngIf="contacto"><span>Te respondemos a</span><strong>{{ contacto }}</strong></div>
+      </section>
+
+      <a routerLink="/pedidos" class="btn-primary">Ir a mis pedidos</a>
+      <a routerLink="/inicio" class="btn-secundario">Volver al inicio</a>
+    </ng-template>
+  </main>
+</ion-content>

@@ -38,8 +38,19 @@
       <ng-container *ngIf="register">
         <label for="confirmacion">Confirmar contraseña</label>
         <input id="confirmacion" class="field" type="password" name="confirmacion" [(ngModel)]="datos.password_confirmation" required autocomplete="new-password" placeholder="••••••••">
+
+        <label class="consent" for="acepta">
+          <input id="acepta" type="checkbox" name="acepta_terminos" [(ngModel)]="datos.acepta_terminos" required>
+          <span>He leído y acepto los <a routerLink="/terminos" target="_blank" rel="noopener">Términos de uso</a> y el <a routerLink="/privacidad" target="_blank" rel="noopener">Aviso de privacidad</a>, y autorizo el tratamiento de mis datos personales para prestarme el servicio.</span>
+        </label>
       </ng-container>
 
+      <ng-container *ngIf="register && verificationRequired">
+        <p role="status">Revisa tu correo. Para activar la cuenta existente, copia el código recibido. Caduca en 30 minutos. Tus datos y pedidos no cambian hasta verificarlo.</p>
+        <label for="claim-token">Código de activación</label>
+        <textarea id="claim-token" class="field" name="claim_token" [(ngModel)]="claimToken" maxlength="4096" autocomplete="off" spellcheck="false"></textarea>
+        <p>Si todavía no llega, espera un minuto y vuelve a pulsar Registrarme con el código vacío para reenviarlo.</p>
+      </ng-container>
       <p *ngIf="error" role="alert" class="error">{{ error }}</p>
 
       <button type="submit" class="btn-primary" [disabled]="busy || form.invalid">

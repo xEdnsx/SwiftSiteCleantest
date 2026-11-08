@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { mensajeLegible } from '../utils/errores'
 
 export const tokenKey = 'swiftsite.admin.token'
 export const api = axios.create({
@@ -27,7 +28,7 @@ export function errorMessage(error: unknown): string {
     if (errors) return Object.values(errors).flat().join(' ')
     if (error.response?.status === 429) return 'Demasiados intentos. Espera un minuto.'
     if (error.response?.status === 403) return 'No tienes permisos de administrador.'
-    return error.response?.data?.message || 'No se pudo conectar con la API.'
+    return mensajeLegible(error.response?.data?.message) || 'No se pudo conectar con la API.'
   }
   return error instanceof Error ? error.message : 'Ocurrio un error inesperado.'
 }

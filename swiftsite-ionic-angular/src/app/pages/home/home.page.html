@@ -1,117 +1,136 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="header">
-    <div class="bar">
-      <a routerLink="/" aria-label="Inicio">
-        <img class="logo" src="assets/logos/logo-claro.svg" alt="SwiftSite Clean" />
+<ion-content>
+  <main class="screen">
+
+    <header class="cabecera">
+      <a routerLink="/inicio" class="marca" aria-label="SwiftSite Clean, inicio">
+        <img class="logo logo-claro" src="assets/logos/logo-claro.svg" alt="SwiftSite Clean" />
+        <img class="logo logo-oscuro" src="assets/logos/logo-oscuro.svg" alt="" aria-hidden="true" />
       </a>
-      <nav>
-        <a href="#servicios" (click)="scrollToSection($event, 'servicios')">Servicios</a>
-        <a href="#proceso" (click)="scrollToSection($event, 'proceso')">Cómo funciona</a>
-        <a class="navcta" [href]="whatsappUrl()" target="_blank" rel="noopener">Cotizar</a>
-      </nav>
+    </header>
+
+    <p class="etiqueta"><ssc-icon name="spark" [size]="16" /> Servicio profesional a domicilio</p>
+
+    <h1><span class="resalte">Vuelve a estrenar</span><br><em>tu hogar.</em></h1>
+    <p class="intro">Limpieza profunda de muebles, colchones, sillas y baños, en tu casa.</p>
+
+    <!-- Comparador antes / después -->
+    <section class="comparador" aria-label="Comparación antes y después">
+      <div class="marco"
+           role="slider" tabindex="0" aria-label="Deslizar para comparar antes y después"
+           aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="porcentaje | number:'1.0-0'"
+           (keydown)="onTecla($event)"
+           (pointerdown)="startDrag($event)" (pointermove)="onDrag($event)"
+           (pointerup)="stopDrag()" (pointercancel)="stopDrag()" (pointerleave)="stopDrag()">
+        <img class="img-despues" [src]="foto(par.despues)" alt="" />
+        <img class="img-antes" [src]="foto(par.antes)" [style.clip-path]="clip" alt="" />
+        <div class="divisor" [style.left.%]="porcentaje"><span class="perilla"><ssc-icon name="arrows" [size]="24" [strokeWidth]="2.2" /></span></div>
+        <span class="tag antes">ANTES</span>
+        <span class="tag despues">DESPUÉS</span>
+      </div>
+      <div class="selector" role="group" aria-label="Elegir ejemplo">
+        <button type="button" *ngFor="let item of comparaciones; index as i" (click)="seleccionar(i)" [class.active]="actual === i" [attr.aria-pressed]="actual === i">{{ item.nombre }}</button>
+      </div>
+    </section>
+
+    <div class="acciones">
+      <a class="btn-primario" routerLink="/cotizar">Cotizar ahora</a>
+      <a *ngIf="whatsappDisponible" class="btn-secundario" [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer">
+        <ssc-icon name="chat" [size]="22" /><span>Hablar con un asesor</span>
+      </a>
     </div>
-  </ion-toolbar>
-</ion-header>
 
-<ion-content [fullscreen]="true">
-  <div class="site">
-    
-    <!-- HERO SECTION -->
-    <section class="hero wrap">
-      <div class="hero-copy">
-        <div class="eyebrow">✦ Servicio profesional a domicilio ✦</div>
-        <h1>Vuelve a estrenar <span>tu hogar.</span></h1>
-        <p>Devolvemos la frescura a tus muebles, colchones, sillas y baños con limpieza profunda a domicilio.</p>
-        
-        <div class="hero-buttons">
-          <a class="primary" [href]="whatsappUrl()" target="_blank" rel="noopener">Cotizar ahora</a>
-          <a class="secondary" [href]="whatsappUrl()" target="_blank" rel="noopener">Hablar con un asesor</a>
-        </div>
-        
-        <div class="hero-tags">
-          <span>✓ Vapor</span>
-          <span>✓ Succión</span>
-          <span>✓ Limpieza profesional</span>
-        </div>
+    <!-- Servicios (salen de la base de datos) -->
+    <section class="bloque" aria-labelledby="t-servicios">
+      <div class="titulo-fila">
+        <h2 id="t-servicios">Nuestros servicios</h2>
+        <a routerLink="/cotizar" class="ver-todos">Ver todos</a>
       </div>
 
-      <!-- COMPARADOR INTERACTIVO (SLIDER) -->
-      <div class="hero-visual">
-        <div class="comparison-container" 
-             (pointerdown)="startDrag($event)" 
-             (pointermove)="onDrag($event)" 
-             (pointerup)="stopDrag()" 
-             (pointercancel)="stopDrag()"
-             (pointerleave)="stopDrag()">
-          
-          <img class="img-after" [src]="foto(par.despues)" alt="Después" />
-          <img class="img-before" [src]="foto(par.antes)" [style.clip-path]="clip" alt="Antes" />
-          
-          <!-- Divisor con la bolita -->
-          <div class="slider-line" [style.left.%]="porcentaje">
-            <div class="slider-button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
+      <p *ngIf="cargandoServicios" class="estado" role="status">Cargando servicios…</p>
+      <p *ngIf="!cargandoServicios && errorServicios" class="estado error" role="alert">
+        No pudimos cargar los servicios. {{ errorServicios }}
+        <button type="button" class="enlace" (click)="cargarServicios()">Reintentar</button>
+      </p>
+
+      <div class="servicios" *ngIf="servicios.length">
+        <a class="servicio" *ngFor="let s of servicios; index as i" routerLink="/cotizar">
+          <span class="tile" [attr.data-color]="i % 3"><ssc-icon [name]="s.icono" [size]="32" /></span>
+          <span class="nombre">{{ s.nombre }}</span>
+          <span class="desde" *ngIf="s.desde">Desde {{ s.desde }}</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Cómo funciona: un camino de burbujas -->
+    <section class="bloque" aria-labelledby="t-como">
+      <h2 id="t-como">Así de sencillo</h2>
+      <ol class="ruta">
+        <li *ngFor="let p of pasos; index as i" [attr.data-paso]="i">
+          <span class="burbuja"><ssc-icon [name]="p.icono" [size]="26" /><b>{{ i + 1 }}</b></span>
+          <div class="paso"><strong>{{ p.titulo }}</strong><span>{{ p.texto }}</span></div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Opiniones de clientes (las que el equipo decidió mostrar) -->
+    <section class="bloque" aria-labelledby="t-opiniones" *ngIf="opiniones.length">
+      <h2 id="t-opiniones">Opiniones de clientes</h2>
+      <ul class="opiniones">
+        <li class="opinion" *ngFor="let o of opiniones">
+          <p class="estrellas-fijas" role="img" [attr.aria-label]="o.estrellas + ' de 5 estrellas'">
+            <ssc-icon *ngFor="let n of estrellas" name="star" [size]="20" [strokeWidth]="1.6" [filled]="n <= o.estrellas" />
+          </p>
+          <p class="texto" *ngIf="o.comentario">«{{ o.comentario }}»</p>
+          <ul class="aspectos" *ngIf="o.aspectos.length && gustoConEstrellas(o.estrellas)">
+            <li *ngFor="let a of o.aspectos">{{ a }}</li>
+          </ul>
+          <p class="mejorar" *ngIf="o.aspectos.length && !gustoConEstrellas(o.estrellas)">A mejorar: <ng-container *ngFor="let a of o.aspectos; let ultimo = last">{{ etiquetaAspecto(a, o.estrellas) }}{{ ultimo ? '' : ', ' }}</ng-container></p>
+          <p class="autor"><strong>{{ o.nombre }}</strong><span *ngIf="mesYAnio(o.fecha)"> · {{ mesYAnio(o.fecha) }}</span></p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Información útil -->
+    <section class="bloque" aria-labelledby="t-info">
+      <h2 id="t-info">Lo que debes saber</h2>
+      <div class="acordeon">
+        <details *ngFor="let i of info; first as primero" [open]="primero">
+          <summary>
+            <span class="tile"><ssc-icon [name]="i.icono" [size]="20" /></span>
+            <span class="titulo">{{ i.titulo }}</span>
+            <ssc-icon name="chevron-down" [size]="20" class="flecha" />
+          </summary>
+          <div class="cuerpo">
+            <p>{{ i.texto }}</p>
+            <p class="nota" *ngIf="i.nota">{{ i.nota }}</p>
           </div>
-          
-          <span class="tag before">ANTES</span>
-          <span class="tag after">DESPUÉS</span>
-        </div>
-
-        <!-- Botones de selección de mueble -->
-        <div class="compare-nav">
-          <button *ngFor="let item of comparaciones; index as i" (click)="seleccionar(i)" [class.active]="actual===i">{{item.nombre}}</button>
-        </div>
+        </details>
       </div>
     </section>
 
-    <!-- SERVICIOS -->
-    <section id="servicios" class="services">
-      <div class="wrap">
-        <div class="section-label">Nuestros servicios</div>
-        <h2>Tu hogar merece <em>un nuevo comienzo.</em></h2>
-        <p class="lede">Cada espacio tiene sus necesidades. Trabajamos con limpieza a vapor, extracción y desinfección.</p>
-        
-        <div class="service-grid">
-          <article class="service-card" *ngFor="let s of servicios">
-            <div class="icon-box">
-              <span class="service-symbol" *ngIf="!s.foto">✳</span>
-              <img *ngIf="s.foto" [src]="foto(s.foto)" [alt]="s.nombre" />
-            </div>
-            <h3>{{s.nombreCompleto}}</h3>
-            <p>{{s.nota}}</p>
-            <div class="chips">
-              <span *ngFor="let item of s.equipo">{{item}}</span>
-            </div>
-            <a class="small-button" [href]="whatsappUrl(s.nombre)" target="_blank" rel="noopener">Cotizar</a>
-          </article>
-        </div>
+    <footer class="pie">
+      <img class="pie-logo" src="assets/logos/logo-oscuro.svg" alt="SwiftSite Clean" />
+      <ul class="pie-datos">
+        <li>
+          <span class="pie-ico"><ssc-icon name="pin" [size]="18" /></span>
+          <span><small>Ubicación</small>{{ contacto.ubicacion }}</span>
+        </li>
+        <li>
+          <span class="pie-ico"><ssc-icon name="clock" [size]="18" /></span>
+          <span><small>Horario</small>{{ contacto.horario }}</span>
+        </li>
+        <li *ngIf="negocio.telefono">
+          <span class="pie-ico"><ssc-icon name="phone" [size]="18" /></span>
+          <span><small>WhatsApp</small>{{ negocio.telefono }}</span>
+        </li>
+      </ul>
+      <div class="pie-base">
+        <span>© 2026 SwiftSite Clean</span>
+        <nav aria-label="Información legal">
+          <a routerLink="/terminos">Términos</a>
+          <a routerLink="/privacidad">Privacidad</a>
+        </nav>
       </div>
-    </section>
-
-    <!-- PROCESO -->
-    <section id="proceso" class="process wrap">
-      <div class="section-label">Cómo funciona</div>
-      <h2>Así de sencillo.</h2>
-      <div class="steps">
-        <article>
-          <strong>01</strong>
-          <h3>Escríbenos</h3>
-          <p>Cuéntanos qué necesitas limpiar y dónde te encuentras.</p>
-        </article>
-        <article>
-          <strong>02</strong>
-          <h3>Recibe tu cotización</h3>
-          <p>Te compartimos la información y coordinamos una fecha.</p>
-        </article>
-        <article>
-          <strong>03</strong>
-          <h3>Atendemos</h3>
-          <p>Realizamos el servicio en tu hogar, con el equipo adecuado.</p>
-        </article>
-      </div>
-    </section>
-
-  </div>
+    </footer>
+  </main>
 </ion-content>

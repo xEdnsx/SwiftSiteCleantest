@@ -5,6 +5,7 @@ import AdminLayout from '../views/AdminLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import PedidosView from '../views/PedidosView.vue'
 import ClientesView from '../views/ClientesView.vue'
+import ReportesView from '../views/ReportesView.vue'
 import ValoracionesView from '../views/ValoracionesView.vue'
 import { useAuthStore } from '../stores/auth'
 
@@ -19,6 +20,7 @@ const router = createRouter({
       { path: 'catalogos', component: CatalogosView },
       { path: 'zonas', component: CatalogosView },
       { path: 'clientes', component: ClientesView },
+      { path: 'reportes', component: ReportesView },
       { path: 'valoraciones', component: ValoracionesView },
     ] },
     { path: '/:pathMatch(.*)*', redirect: '/dashboard' },

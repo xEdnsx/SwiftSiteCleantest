@@ -68,6 +68,8 @@ class TarifaController extends Controller
             'id_categoria' => [$required, 'required', 'integer', 'exists:categorias_servicio,id_categoria'],
             'tipo_item' => [$required, 'required', 'string', 'max:100'],
             'material' => ['sometimes', 'nullable', 'string', 'max:80'],
+            'detalle' => ['sometimes', 'nullable', 'string', 'max:80'],
+            'descripcion' => ['sometimes', 'nullable', 'string', 'max:200'],
             'precio_unitario' => [$required, 'required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'activo' => ['sometimes', 'boolean'],
         ];

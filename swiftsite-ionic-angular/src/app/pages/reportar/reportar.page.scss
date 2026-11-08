@@ -1,0 +1,91 @@
+@use '../../../styles/ssc' as *;
+
+ion-content { --background: #{$bone}; }
+.screen { @include screen(17px); padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+.top { display: flex; align-items: center; gap: 12px; }
+.back { @include back-button; }
+h1 { margin: 0; @include display(31px, 34px); }
+.intro { margin: 12px 0 0; font-size: 17px; line-height: 23px; color: $gris; }
+
+h2, .h2 { margin: 22px 0 0; @include display(21px); letter-spacing: -0.02em; }
+.h2 { display: block; }
+h2 + * { margin-top: 10px; }
+
+.estado { margin: 24px 0 0; font-size: 17px; color: $gris; }
+
+.aviso {
+  margin-top: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; @include card(22px);
+  ssc-icon { color: $error; }
+  p { margin: 0; font-size: 17px; line-height: 23px; }
+}
+
+// ----- Pedido -----
+.pedido {
+  padding: 12px 14px; display: flex; align-items: center; gap: 12px; @include card(22px);
+  box-shadow: 4px 4px 0 $borde; width: calc(100% - 4px);
+}
+.tile { width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; background: $aqua-suave; border: 2px solid $borde; border-radius: 50%; color: $ink; }
+.pedido-txt { min-width: 0; }
+.meta { font-size: 14.5px; line-height: 20px; color: $gris; }
+.titulo { margin: 2px 0; font-family: $font-ui; font-weight: 700; font-size: 17px; line-height: 22px; }
+
+// ----- Motivo -----
+.pills { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.pill { @include pill(44px, 17px); padding: 0 18px; }
+
+// ----- Descripción -----
+textarea { @include field(112px); margin-top: 12px; padding: 12px 16px; border-radius: 18px; font-size: 17px; line-height: 23px; resize: none; }
+.contador { margin-top: 6px; text-align: right; font-size: 13px; color: $gris; &.excede { color: $error; font-weight: 700; } }
+
+.contacto {
+  margin-top: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  background: $aqua-suave; border: 2px dashed $borde; border-radius: 20px;
+  p { margin: 0; font-size: 15px; line-height: 20px; }
+}
+.tile-sol { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; background: $sol; border: 2px solid $borde; border-radius: 50%; color: $tinta; }
+
+.error, .falta { margin: 14px 0 0; font-size: 15px; line-height: 20px; }
+.error { color: $error; font-weight: 600; }
+.falta { color: $gris; }
+
+.btn-primary { @include btn-primary(); margin-top: 20px; }
+.btn-secundario { @include btn-secondary(52px, 17px); margin-top: 12px; width: calc(100% - 4px); }
+.aviso .btn-secundario { margin-top: 0; }
+
+// ----- Reporte enviado -----
+.exito-marca {
+  margin: 60px auto 0; width: 84px; height: 84px; display: flex; align-items: center; justify-content: center;
+  background: $aqua; border: 2px solid $borde; border-radius: 26px; box-shadow: 4px 4px 0 $borde; color: $tinta;
+}
+.exito { margin: 22px 0 0; text-align: center; @include display(36px, 40px); }
+.exito-txt { margin: 10px 0 0; text-align: center; font-size: 17px; line-height: 23px; color: $gris; }
+
+.resumen {
+  margin-top: 26px; padding: 16px; @include card(22px); box-shadow: 4px 4px 0 $borde; width: calc(100% - 4px);
+  .resumen-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid $linea; }
+  .num { font-family: $font-ui; font-weight: 700; font-size: 20px; }
+  .fila { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; font-size: 16px; span { flex: none; white-space: nowrap; color: $gris; } strong { font-weight: 600; text-align: right; } }
+}
+.resumen + .btn-primary { margin-top: 26px; }
+
+.guia { margin: 12px 0 0; padding: 10px 14px; font-size: 16px; line-height: 21px; font-weight: 600; background: $aqua-suave; border-radius: 16px; color: $ink; }
+
+// ----- Ya hay un reporte abierto de este pedido -----
+.previo {
+  margin-top: 22px; padding: 16px; @include card(22px); box-shadow: 4px 4px 0 $borde; width: calc(100% - 4px);
+  .previo-top { display: flex; align-items: center; gap: 12px; h2 { margin: 0; font-size: 21px; } }
+  p { margin: 12px 0 0; font-size: 16px; line-height: 22px; }
+  .previo-estado { margin-top: 12px; }
+  .previo-nota { color: $gris; font-size: 15px; line-height: 20px; }
+  .btn-primary { margin-top: 18px; }
+}
+.estado-badge { @include badge($sol, $tinta); font-size: 14px; font-weight: 700; }
+
+// ----- Respuesta del equipo a un reporte ya resuelto -----
+.respuesta {
+  margin-top: 22px; padding: 16px; background: $aqua-suave; border: 2px solid $borde; border-radius: 22px; width: calc(100% - 4px);
+  .previo-top { display: flex; align-items: center; gap: 12px; h2 { margin: 0; font-size: 19px; line-height: 24px; } }
+  .respuesta-txt { margin: 12px 0 0; font-size: 17px; line-height: 23px; white-space: pre-line; overflow-wrap: anywhere; }
+  .previo-nota { margin: 10px 0 0; font-size: 14.5px; line-height: 20px; color: $gris; }
+}

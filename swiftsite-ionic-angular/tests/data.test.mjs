@@ -22,7 +22,7 @@ test('WhatsApp normalizes the number and encodes the service message', () => {
 });
 
 test('All photographs referenced by services and comparisons exist', () => {
-  const photos = data.servicios.map(service => service.foto).filter(Boolean);
+  const photos = Object.values(data.FOTOS_SERVICIO);
   for (const pair of data.comparaciones) photos.push(pair.antes, pair.despues);
   for (const photo of photos) {
     assert.ok(existsSync(new URL(`../src/${data.foto(photo)}`, import.meta.url)), photo);
@@ -31,4 +31,11 @@ test('All photographs referenced by services and comparisons exist', () => {
 
 test('Photo URL encodes spaces and reserved characters', () => {
   assert.equal(data.foto('foto #1.webp'), 'assets/fotos/foto%20%231.webp');
+});
+
+test('whatsappMensaje arma el enlace con un mensaje libre y rechaza números de ejemplo', () => {
+  assert.equal(data.whatsappMensaje('Hola', '503XXXXXXXX'), null);
+  const url = new URL(data.whatsappMensaje('Quiero reportar un problema', '+503 7000-0000'));
+  assert.equal(url.pathname, '/50370000000');
+  assert.equal(url.searchParams.get('text'), 'Quiero reportar un problema');
 });

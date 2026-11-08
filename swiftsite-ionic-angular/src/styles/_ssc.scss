@@ -1,19 +1,32 @@
 // Tokens y mixins del estilo SwiftSite Clean (tomados de los mockups).
 // Uso en un componente:  @use '../../../styles/ssc' as *;
 
-$ink: #0B1F3A;
+// ---- Colores que NO cambian con el tema ----
+$tinta: #0B1F3A;   // texto oscuro sobre cian, amarillo y celeste (siempre oscuro)
 $aqua: #00E5FF;
-$aqua-suave: #D9F7FA;
 $cielo: #9AF3FF;
-$blue: #1E5BD8;
-$blue-dark: #0F3FA0;
 $sol: #FFD23F;
-$bone: #F2F8FC;
-$gris: #4A5A70;
-$linea: #DCE4EC;
-$placeholder: #5F6E82;
-$menu: #D6E3F2;
-$error: #a12222;
+$menu: #D6E3F2;    // texto claro dentro de los paneles oscuros
+
+// ---- Colores que SÍ cambian con el tema (valores en global.scss: :root y :root.oscuro) ----
+$ink: var(--c-ink);                 // texto principal
+$borde: var(--c-borde);             // bordes y sombras duras
+$bone: var(--c-fondo);              // fondo de pantalla
+$superficie: var(--c-superficie);   // tarjetas y campos (el "blanco")
+$aqua-suave: var(--c-tile);         // fondos de íconos y selección
+$gris: var(--c-gris);               // texto secundario
+$linea: var(--c-linea);             // separadores
+$placeholder: var(--c-placeholder);
+$blue: var(--c-azul);
+$blue-dark: var(--c-azul-fuerte);
+$error: var(--c-error);
+$resalte: var(--c-resalte);           // subrayado del título del Inicio
+$panel: var(--c-panel);             // paneles oscuros de totales
+$activo: var(--c-activo);           // píldora/pestaña activa
+$activo-texto: var(--c-activo-texto);
+$peligro: var(--c-peligro);
+$peligro-texto: var(--c-peligro-texto);
+$peligro-suave: var(--c-peligro-suave);
 
 $font-display: 'Bricolage Grotesque', sans-serif;
 $font-ui: 'Plus Jakarta Sans', sans-serif;
@@ -39,8 +52,8 @@ $font-ui: 'Plus Jakarta Sans', sans-serif;
 }
 
 @mixin card($radius: 22px) {
-  background: #fff;
-  border: 2px solid $ink;
+  background: $superficie;
+  border: 2px solid $borde;
   border-radius: $radius;
 }
 
@@ -52,17 +65,17 @@ $font-ui: 'Plus Jakarta Sans', sans-serif;
   align-items: center;
   justify-content: center;
   background: $aqua;
-  border: 2px solid $ink;
+  border: 2px solid $borde;
   border-radius: 999px;
-  box-shadow: 4px 4px 0 $ink;
+  box-shadow: 4px 4px 0 $borde;
   font-family: inherit;
   font-weight: 600;
   font-size: $size;
-  color: $ink;
+  color: $tinta;
   text-decoration: none;
   cursor: pointer;
   transition: transform .1s, box-shadow .1s;
-  &:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 0 0 0 $ink; }
+  &:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 0 0 0 $borde; }
   &:disabled { opacity: .5; cursor: not-allowed; }
 }
 
@@ -73,8 +86,8 @@ $font-ui: 'Plus Jakarta Sans', sans-serif;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: #fff;
-  border: 2px solid $ink;
+  background: $superficie;
+  border: 2px solid $borde;
   border-radius: 999px;
   font-family: inherit;
   font-weight: 600;
@@ -91,15 +104,15 @@ $font-ui: 'Plus Jakarta Sans', sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #fff;
-  border: 2px solid $ink;
+  background: $superficie;
+  border: 2px solid $borde;
   border-radius: 999px;
   font-family: inherit;
   font-size: $size;
   font-weight: 500;
   color: $ink;
   cursor: pointer;
-  &.active { background: $ink; color: #fff; }
+  &.active { background: $activo; color: $activo-texto; }
 }
 
 // Campo de texto
@@ -107,8 +120,8 @@ $font-ui: 'Plus Jakarta Sans', sans-serif;
   width: 100%;
   min-height: $height;
   padding: 0 18px;
-  background: #fff;
-  border: 2px solid $ink;
+  background: $superficie;
+  border: 2px solid $borde;
   border-radius: 18px;
   font-family: inherit;
   font-size: 18px;
@@ -126,15 +139,15 @@ $font-ui: 'Plus Jakarta Sans', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  border: 2px solid $ink;
+  background: $superficie;
+  border: 2px solid $borde;
   border-radius: 50%;
   color: $ink;
   cursor: pointer;
 }
 
 // Etiquetas de estado de pedido
-@mixin badge($bg, $color: $ink, $border: $ink) {
+@mixin badge($bg, $color: $ink, $border: $borde) {
   height: 26px;
   padding: 0 12px;
   display: inline-flex;

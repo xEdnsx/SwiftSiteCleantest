@@ -2,131 +2,108 @@
   <main class="screen">
     <!-- Encabezado -->
     <header class="top">
-      <a *ngIf="paso === 1" routerLink="/inicio" class="back" aria-label="Volver"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
+      <a *ngIf="paso === 1" routerLink="/cotizar" [queryParams]="{ vista: 'lista' }" class="back" aria-label="Volver a mi lista"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
       <button *ngIf="paso > 1" type="button" class="back" aria-label="Volver" (click)="anterior()"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></button>
       <div>
-        <div class="step-label">Paso {{ paso }} de {{ totalPasos }}</div>
-        <h1 *ngIf="paso === 1">¿Qué quieres limpiar?</h1>
-        <h1 *ngIf="paso === 2">Cuéntanos del mueble</h1>
-        <h1 *ngIf="paso === 3">¿Dónde y cuándo?</h1>
-        <h1 *ngIf="paso === 4">Tu resumen</h1>
+        <div class="step-label">Tu pedido · Paso {{ paso }} de {{ totalPasos }}</div>
+        <h1 *ngIf="paso === 1">¿Dónde y cuándo?</h1>
+        <h1 *ngIf="paso === 2">Tu resumen</h1>
       </div>
     </header>
 
-    <!-- Progreso -->
     <div class="progress" role="img" [attr.aria-label]="'Paso ' + paso + ' de ' + totalPasos">
-      <span *ngFor="let n of [1, 2, 3, 4]" [class.done]="n <= paso"></span>
+      <span *ngFor="let n of [1, 2]" [class.done]="n <= paso"></span>
     </div>
 
-    <!-- ===== PASO 1 ===== -->
-    <section *ngIf="paso === 1" class="categorias">
-      <button *ngFor="let c of categorias" type="button" class="cat" [class.selected]="categoria === c.id" (click)="categoria = c.id" [attr.aria-pressed]="categoria === c.id">
-        <span class="cat-icon"><ssc-icon [name]="c.id" [size]="36" [strokeWidth]="1.8" /></span>
-        <span class="cat-text"><strong>{{ c.nombre }}</strong><span>{{ c.desc }}</span></span>
-        <span class="radio"><ssc-icon *ngIf="categoria === c.id" name="check" [size]="20" [strokeWidth]="3" /></span>
-      </button>
+    <p *ngIf="cargando" role="status" class="nota">Cargando...</p>
+
+    <!-- Sin lista: se llegó directo a esta dirección -->
+    <section *ngIf="!cargando && lineas.length === 0" class="vacia">
+      <strong>Tu lista está vacía</strong>
+      <span>Primero calcula qué quieres limpiar y luego vuelve aquí para pedirlo.</span>
+      <a routerLink="/cotizar" class="btn-primary">Armar mi cotización</a>
     </section>
 
-    <!-- ===== PASO 2 ===== -->
-    <ng-container *ngIf="paso === 2">
-      <h2>Tipo de mueble</h2>
-      <div class="pills">
-        <button *ngFor="let t of tipos" type="button" class="pill" [class.active]="tipoMueble === t" (click)="tipoMueble = t">
-          <ssc-icon *ngIf="tipoMueble === t" name="check" [size]="18" [strokeWidth]="3" />{{ t }}
-        </button>
-      </div>
+    <!-- Error al cargar zonas -->
+    <section *ngIf="!cargando && lineas.length > 0 && errorCarga" class="vacia" role="alert">
+      <strong>No pudimos cargar tu zona</strong>
+      <span>{{ errorCarga }}</span>
+      <button type="button" class="btn-primary" (click)="cargar()">Reintentar</button>
+    </section>
 
-      <h2>Material</h2>
-      <div class="materiales">
-        <button *ngFor="let m of materiales" type="button" class="material" [class.selected]="material === m.nombre" (click)="material = m.nombre">
-          <span class="muestra" [ngClass]="m.muestra"></span>{{ m.nombre }}
-        </button>
-      </div>
-      <p class="hint">Los muebles de madera sin tapizar no se limpian con vapor.</p>
-
-      <h2>Cantidad</h2>
-      <div class="cantidad">
-        <span>{{ tipoMueble }}, {{ material.toLowerCase() }}</span>
-        <div class="stepper">
-          <button type="button" aria-label="Quitar uno" (click)="cambiarCantidad(-1)"><ssc-icon name="minus" [size]="20" [strokeWidth]="2.4" /></button>
-          <span class="num">{{ cantidad }}</span>
-          <button type="button" class="plus" aria-label="Agregar uno" (click)="cambiarCantidad(1)"><ssc-icon name="plus" [size]="20" [strokeWidth]="2.4" /></button>
-        </div>
-      </div>
-
-      <div class="subtotal"><span>Subtotal estimado</span><strong>${{ subtotalActual.toFixed(2) }}</strong></div>
-    </ng-container>
-
-    <!-- ===== PASO 3 ===== -->
-    <ng-container *ngIf="paso === 3">
-      <label class="lbl" for="zona">Zona</label>
-      <div class="select">
-        <select id="zona" [(ngModel)]="zona" name="zona">
-          <option *ngFor="let z of zonas" [value]="z.nombre">{{ z.nombre }}</option>
-        </select>
-        <ssc-icon name="chevron-down" [size]="24" [strokeWidth]="2.4" />
-      </div>
-      <div class="zona-chip" *ngIf="recargo === 0"><ssc-icon name="check" [size]="14" [strokeWidth]="3" />Domicilio gratis en esta zona</div>
-      <div class="zona-chip recargo" *ngIf="recargo > 0">Recargo por zona: ${{ recargo.toFixed(2) }}</div>
-
-      <label class="lbl" for="direccion">Dirección</label>
-      <textarea id="direccion" class="direccion" [(ngModel)]="direccion" name="direccion" rows="2" placeholder="Colonia, calle y número de casa"></textarea>
-
-      <div class="lbl">Fecha preferida</div>
-      <div class="dias">
-        <button *ngFor="let d of dias" type="button" class="dia" [class.active]="d === dia" (click)="dia = d">
-          <span>{{ d.etiqueta }}</span><strong>{{ d.numero }}</strong>
-        </button>
-      </div>
-
-      <div class="lbl"><span>Hora de inicio</span>&nbsp;<small>(atendemos de 7:30 a. m. a 5:00 p. m.)</small></div>
-      <div class="horas">
-        <button *ngFor="let h of horas" type="button" class="pill" [class.active]="h === hora" (click)="hora = h">{{ h }}</button>
-      </div>
-
-      <button type="button" class="fotos"><ssc-icon name="camera" [size]="24" />Agregar fotos (opcional)</button>
-    </ng-container>
-
-    <!-- ===== PASO 4 ===== -->
-    <ng-container *ngIf="paso === 4">
-      <section class="panel">
-        <h2>Lo que vamos a limpiar</h2>
-        <div class="linea" *ngFor="let l of lineasResumen">
-          <div>
-            <div class="linea-nombre">{{ l.tipo }}</div>
-            <div class="linea-detalle">{{ l.material }} · {{ l.cantidad }} {{ l.cantidad === 1 ? 'unidad' : 'unidades' }}</div>
+    <ng-container *ngIf="!cargando && lineas.length > 0 && !errorCarga">
+      <!-- ===== PASO 1 · Dónde y cuándo ===== -->
+      <ng-container *ngIf="paso === 1">
+        <div class="lbl">Zona del servicio</div>
+        <div class="zona-card" *ngIf="infoZona as zi; else sinZona">
+          <ssc-icon name="pin" [size]="24" />
+          <div class="zona-txt">
+            <strong>{{ zi.departamento }} · {{ zi.zona.nombre }}</strong>
+            <small>{{ zi.gratis ? 'Domicilio gratis' : 'Recargo por zona: ' + dinero(zi.zona.recargo) }}</small>
           </div>
-          <div class="linea-precio">${{ importe(l).toFixed(2) }}</div>
+          <a routerLink="/cotizar" [queryParams]="{ vista: 'lista' }" class="cambiar">Cambiar</a>
         </div>
-      </section>
+        <ng-template #sinZona>
+          <div class="zona-card"><div class="zona-txt"><strong>Elige tu zona</strong><small>La eliges en tu cotización.</small></div>
+            <a routerLink="/cotizar" [queryParams]="{ vista: 'lista' }" class="cambiar">Elegir</a></div>
+        </ng-template>
 
-      <section class="panel donde">
-        <h2>Dónde y cuándo</h2>
-        <div class="dato"><ssc-icon name="pin" /><span>{{ zona }}{{ direccion ? ' · ' + direccion : '' }}</span></div>
-        <div class="dato"><ssc-icon name="calendar" /><span>{{ fechaLarga }} · {{ hora }}</span></div>
-      </section>
+        <label class="lbl" for="direccion">Dirección exacta</label>
+        <textarea id="direccion" class="direccion" [(ngModel)]="direccion" name="direccion" rows="4" [attr.maxlength]="direccionMax"
+                  [placeholder]="direccionEjemplo" aria-describedby="direccion-ayuda"></textarea>
+        <p id="direccion-ayuda" class="ayuda" [class.mal]="direccion.trim().length > 0 && !direccionValida" [class.bien]="direccionValida">
+          {{ estadoDireccion.mensaje }}
+        </p>
 
-      <section class="totales">
-        <div class="t-row"><span>Subtotal</span><span>${{ subtotal.toFixed(2) }}</span></div>
-        <div class="t-row"><span>Recargo por zona</span><span>${{ recargo.toFixed(2) }}{{ recargo === 0 ? ' · gratis' : '' }}</span></div>
-        <div class="t-total"><span>Total estimado</span><strong>${{ total.toFixed(2) }}</strong></div>
-      </section>
-      <p class="nota">Es un precio estimado. Lo confirmamos contigo antes de ir a tu casa.</p>
+        <div class="lbl">Fecha preferida</div>
+        <div class="dias">
+          <button *ngFor="let d of dias" type="button" class="dia" [class.active]="d === dia" (click)="dia = d">
+            <span>{{ d.etiqueta }}</span><strong>{{ d.numero }}</strong>
+          </button>
+        </div>
+
+        <div class="lbl"><span>Hora de inicio</span>&nbsp;<small>(atendemos de 7:30 a. m. a 5:00 p. m.)</small></div>
+        <div class="horas">
+          <button *ngFor="let h of horas" type="button" class="pill" [class.active]="h === hora" (click)="hora = h">{{ h }}</button>
+        </div>
+      </ng-container>
+
+      <!-- ===== PASO 2 · Resumen ===== -->
+      <ng-container *ngIf="paso === 2">
+        <section class="panel">
+          <h2>Lo que vamos a limpiar</h2>
+          <div class="linea" *ngFor="let l of lineas">
+            <div>
+              <div class="linea-nombre">{{ tituloDe(l) }}</div>
+              <div class="linea-detalle">{{ detalleDe(l) }}</div>
+            </div>
+            <div class="linea-precio">{{ dinero(importeDe(l)) }}</div>
+          </div>
+        </section>
+
+        <section class="panel donde">
+          <h2>Dónde y cuándo</h2>
+          <div class="dato"><ssc-icon name="pin" /><span>{{ zonaActual?.nombre }} · {{ direccionLimpia }}</span></div>
+          <div class="dato"><ssc-icon name="calendar" /><span>{{ fechaLarga }} · {{ hora }}</span></div>
+        </section>
+
+        <p *ngIf="errorCalculo" role="alert" class="error">{{ errorCalculo }} <button type="button" class="link" (click)="calcular()">Reintentar</button></p>
+        <section class="totales" aria-live="polite">
+          <div class="t-row"><span>Subtotal</span><span>{{ resultado ? dinero(resultado.subtotal) : dinero(subtotalLocal) }}</span></div>
+          <div class="t-row"><span>Recargo por zona</span><span>{{ resultado ? dinero(resultado.recargo_zona) : '—' }}</span></div>
+          <div class="t-total"><span>{{ calculando ? 'Calculando...' : 'Total estimado' }}</span><strong>{{ resultado ? dinero(resultado.total) : '—' }}</strong></div>
+        </section>
+        <p class="nota">Es un precio estimado. Lo confirmamos contigo antes de ir a tu casa.</p>
+      </ng-container>
     </ng-container>
 
     <!-- Acciones -->
-    <footer class="acciones">
+    <footer class="acciones" *ngIf="!cargando && lineas.length > 0 && !errorCarga">
+      <button *ngIf="paso === 1" type="button" class="btn-primary" [disabled]="!puedeContinuar" (click)="siguiente()">Ver resumen</button>
       <ng-container *ngIf="paso === 2">
-        <div class="par">
-          <button type="button" class="btn-sec" (click)="agregarOtro()">Agregar otro</button>
-          <button type="button" class="btn-primary" (click)="siguiente()">Continuar</button>
-        </div>
-      </ng-container>
-      <button *ngIf="paso === 1" type="button" class="btn-primary" (click)="siguiente()">Continuar</button>
-      <button *ngIf="paso === 3" type="button" class="btn-primary" (click)="siguiente()">Ver resumen</button>
-      <ng-container *ngIf="paso === 4">
-        <a class="btn-primary" routerLink="/pedidos">Confirmar pedido</a>
-        <a class="btn-sec asesor" [attr.href]="whatsapp" target="_blank" rel="noopener"><ssc-icon name="chat" [size]="22" />Hablar con un asesor</a>
+        <p *ngIf="errorEnvio" role="alert" class="error">{{ errorEnvio }}</p>
+        <button type="button" class="btn-primary" [disabled]="!puedeConfirmar" (click)="confirmar()">{{ enviando ? 'Enviando...' : 'Confirmar pedido' }}</button>
+        <a *ngIf="whatsapp" class="btn-sec asesor" [href]="whatsapp" target="_blank" rel="noopener"><ssc-icon name="chat" [size]="22" />Hablar con un asesor</a>
       </ng-container>
     </footer>
   </main>

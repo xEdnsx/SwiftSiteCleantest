@@ -29,5 +29,9 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('administrar-catalogos', fn (Usuario $usuario): bool => $usuario->rol()->where('nombre_rol', 'Administrador')->exists()
         );
+
+        // Mismo criterio (rol Administrador) para el resto del panel: pedidos, clientes, reportes.
+        Gate::define('administrar-panel', fn (Usuario $usuario): bool => $usuario->rol()->where('nombre_rol', 'Administrador')->exists()
+        );
     }
 }

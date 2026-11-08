@@ -1,26 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { usePendientesStore } from '../stores/pendientes'
 import { errorMessage } from '../services/api'
 import AppIcon, { type IconName } from '../components/AppIcon.vue'
 import BrandMark from '../components/BrandMark.vue'
 
 const auth = useAuthStore()
+const pendientes = usePendientesStore()
 const router = useRouter()
 const route = useRoute()
 const error = ref('')
 const busy = ref(false)
 
 /** Menú lateral. `match` agrupa rutas que deben marcar el mismo ítem como activo. */
-const menu: { label: string; to: string; icon: IconName; match: string[] }[] = [
+const menu: { label: string; to: string; icon: IconName; match: string[]; globo?: () => number }[] = [
   { label: 'Inicio', to: '/dashboard', icon: 'home', match: ['/dashboard'] },
-  { label: 'Pedidos', to: '/pedidos', icon: 'orders', match: ['/pedidos'] },
+  { label: 'Pedidos', to: '/pedidos', icon: 'orders', match: ['/pedidos'], globo: () => pendientes.datos.pedidos_por_confirmar },
   { label: 'Catálogo', to: '/catalogos', icon: 'catalog', match: ['/catalogos', '/zonas'] },
   { label: 'Clientes', to: '/clientes', icon: 'customers', match: ['/clientes'] },
-  { label: 'Valoraciones', to: '/valoraciones', icon: 'star', match: ['/valoraciones'] },
+  { label: 'Reportes', to: '/reportes', icon: 'flag', match: ['/reportes'], globo: () => pendientes.datos.reportes_abiertos },
+  { label: 'Valoraciones', to: '/valoraciones', icon: 'star', match: ['/valoraciones'], globo: () => pendientes.datos.valoraciones_pendientes },
 ]
 const isActive = (match: string[]) => match.includes(route.path)
+
+onMounted(() => pendientes.iniciar())
+onBeforeUnmount(() => pendientes.detener())
 
 async function logout() {
   busy.value = true
@@ -54,6 +60,11 @@ async function logout() {
         >
           <AppIcon :name="item.icon" :size="22" />
           {{ item.label }}
+          <span
+            v-if="item.globo && item.globo() > 0"
+            class="ml-auto min-w-6 h-6 px-1.5 rounded-full bg-sol text-tinta text-sm font-bold grid place-items-center"
+            :aria-label="`${item.globo()} pendientes`"
+          >{{ item.globo() }}</span>
         </RouterLink>
       </nav>
 

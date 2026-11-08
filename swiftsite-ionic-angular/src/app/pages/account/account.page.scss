@@ -1,18 +1,138 @@
 @use '../../../styles/ssc' as *;
 
+// Perfil (mockups 26 a 29)
 ion-content { --background: #{$bone}; }
-.screen { @include screen(17px); }
+.screen { @include screen(17px); padding-bottom: 32px; }
 
 h1 { margin: 0; @include display(38px, 44px); }
+h2 { margin: 22px 0 0; @include display(21px); letter-spacing: -0.02em; }
 
-.perfil { margin-top: 20px; padding: 20px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; @include card(22px); }
+.titulo { display: flex; align-items: center; justify-content: space-between; }
+.redondo { @include back-button; }
+.barra { display: flex; align-items: center; gap: 12px; h1 { font-size: 30px; line-height: 34px; } }
+.volver { @include back-button; }
+
+// ----- Tarjeta de la persona -----
+.tarjeta-perfil { margin-top: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; @include card(22px); }
 .avatar {
-  width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;
-  background: $aqua-suave; border: 2px solid $ink; border-radius: 22px; color: $ink;
+  width: 84px; height: 84px; flex: none; display: flex; align-items: center; justify-content: center;
+  background: $aqua; border: 2px solid $borde; border-radius: 50%; color: $tinta;
+  @include display(31px);
+  &.grande-av { width: 112px; height: 112px; font-size: 42px; align-self: center; margin-top: 20px; }
 }
-.nombre { margin: 14px 0 0; font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
-.dato { margin: 4px 0 0; font-size: 16px; color: $gris; }
+.quien { min-width: 0; }
+.nombre { margin: 0; font-family: $font-ui; font-weight: 700; font-size: 24px; line-height: 28px; overflow-wrap: anywhere; }
+.dato { margin: 2px 0 0; font-size: 16px; line-height: 21px; color: $gris; overflow-wrap: anywhere; }
 
-.error { margin: 16px 0 0; color: $error; font-weight: 500; }
-.btn-logout { @include btn-secondary(54px, 18px); margin-top: 20px; width: 100%; }
-.nota { margin: 14px 0 0; font-size: 16px; line-height: 21px; color: $gris; }
+.exito { margin: 14px 0 0; padding: 10px 14px; background: $aqua-suave; border: 1.5px solid $borde; border-radius: 14px; font-weight: 500; }
+.error { margin: 12px 0 0; color: $error; font-weight: 500; }
+.campo-error { margin: 6px 0 0; color: $error; font-size: 15px; }
+
+// ----- Cifras -----
+.cifras { margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 12px; }
+.grande {
+  padding: 14px 16px; min-height: 112px; display: flex; flex-direction: column;
+  background: $panel; border-radius: 22px; color: #fff;
+  .rotulo { font-size: 15px; color: $menu; }
+  .numero { @include display(52px, 56px); color: $cielo; }
+  .detalle { font-size: 14px; color: $menu; }
+}
+.chicas {
+  display: flex; flex-direction: column; gap: 12px;
+  > div { flex: 1; padding: 10px 16px; @include card(20px); }
+  .rotulo { display: block; font-size: 14px; color: $gris; }
+  strong { @include display(28px, 30px); }
+}
+
+// ----- Listas -----
+.lista {
+  margin-top: 10px; padding: 2px 14px; @include card(22px);
+  > * {
+    width: 100%; min-height: 58px; padding: 0 4px; display: flex; align-items: center; gap: 14px;
+    background: transparent; border: 0; border-bottom: 1px solid $linea;
+    font-family: inherit; font-size: 17px; color: $ink; text-decoration: none; text-align: left; cursor: pointer;
+    &:last-child { border-bottom: 0; }
+  }
+  .txt { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; }
+  .valor { min-width: 0; max-width: 55%; font-size: 16px; color: $gris; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .flecha { flex: none; color: $gris; }
+}
+.tile { width: 38px; height: 38px; flex: none; display: flex; align-items: center; justify-content: center; background: $aqua-suave; border-radius: 12px; color: $ink; }
+.interruptor {
+  flex: none; position: relative; width: 52px; height: 30px; background: $linea; border: 2px solid $borde; border-radius: 999px;
+  span { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: $ink; transition: transform .15s; }
+  &.on { background: $aqua; span { background: $tinta; transform: translateX(22px); } }
+}
+
+.btn-logout { @include btn-secondary(55px, 18px); margin-top: 24px; width: 100%; }
+.btn-eliminar {
+  margin: 14px auto 0; min-height: 44px; padding: 0 12px; display: block; background: transparent; border: 0;
+  font-family: inherit; font-size: 16px; font-weight: 600; color: $error; text-decoration: underline; cursor: pointer;
+}
+.pie { margin: 6px 0 0; text-align: center; font-size: 14px; color: $gris; }
+
+// ----- Formularios -----
+form { display: flex; flex-direction: column; flex: 1; }
+label { margin-top: 18px; font-weight: 600; font-size: 17px; }
+.optional { font-weight: 400; color: $gris; }
+.field { @include field(); margin-top: 8px; }
+.field.bloqueado { display: flex; align-items: center; gap: 8px; padding: 0 16px 0 18px; background: $linea; color: $gris; input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 18px; color: $gris; padding: 0; } }
+.password {
+  display: flex; align-items: center; gap: 8px; padding: 0 16px 0 18px;
+  input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 18px; color: $ink; padding: 0; }
+  &:focus-within { border-color: $blue; }
+}
+.eye { background: none; border: 0; padding: 0; color: $ink; cursor: pointer; display: flex; }
+.nota { margin: 8px 0 0; font-size: 15px; line-height: 20px; color: $gris; }
+.fila-link {
+  margin-top: 18px; min-height: 54px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+  @include card(18px); font-family: inherit; font-weight: 600; font-size: 17px; color: $ink; cursor: pointer;
+  span { display: flex; align-items: center; gap: 12px; }
+}
+
+// Botones abajo, pegados al borde del contenido
+.pie-fijo {
+  margin-top: auto; padding-top: 24px; display: flex; gap: 10px;
+  .btn-secondary { flex: 1; margin-top: 0; }
+  .btn-primary { flex: 1.3; margin: 0 4px 0 0; width: auto; }
+}
+.btn-primary { @include btn-primary(58px, 19px); margin-top: 22px; }
+.btn-secondary { @include btn-secondary(58px, 19px); margin-top: 12px; }
+.btn-peligro { @include btn-primary(58px, 19px); margin-top: 22px; background: $peligro; color: $peligro-texto; }
+
+// ----- Medidor de fuerza -----
+.medidor {
+  margin-top: 10px; display: flex; align-items: center; gap: 10px; font-size: 15px;
+  .barra-fuerza { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  i { height: 8px; border-radius: 99px; background: $linea; }
+  &[data-nivel='1'] i:nth-child(-n + 1) { background: $error; }
+  &[data-nivel='2'] i:nth-child(-n + 2) { background: $sol; }
+  &[data-nivel='3'] i { background: #1c9a5b; }
+}
+.requisitos {
+  margin: 8px 0 0; padding: 0; list-style: none; font-size: 15px; color: $gris;
+  li { display: flex; align-items: center; gap: 6px; margin-top: 4px; ssc-icon { opacity: .35; } }
+  li.cumple { color: $ink; ssc-icon { opacity: 1; color: #1c9a5b; } }
+}
+
+// ----- Direcciones y FAQ -----
+.direcciones {
+  margin: 16px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px;
+  li { padding: 12px 14px; display: flex; align-items: center; gap: 12px; @include card(18px); font-size: 16px; line-height: 21px; overflow-wrap: anywhere; }
+}
+.vacio { margin-top: 20px; text-align: center; color: $gris; }
+.faq {
+  margin-top: 16px; display: flex; flex-direction: column; gap: 10px;
+  details { @include card(18px); padding: 0 16px; }
+  summary { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; font-size: 17px; cursor: pointer; list-style: none; &::-webkit-details-marker { display: none; } }
+  details[open] summary ssc-icon { transform: rotate(180deg); }
+  p { margin: 0 0 16px; font-size: 16px; line-height: 23px; color: $gris; }
+}
+.faq + .btn-secondary { margin-top: 20px; }
+
+.aviso-peligro {
+  margin-top: 16px; padding: 14px 16px; background: $peligro-suave; border: 2px solid $error; border-radius: 18px;
+  p { margin: 0; color: $error; }
+  ul { margin: 8px 0 0; padding-left: 20px; font-size: 16px; line-height: 22px; }
+  li { margin-top: 4px; }
+}
