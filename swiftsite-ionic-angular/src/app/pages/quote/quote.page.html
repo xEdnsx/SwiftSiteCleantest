@@ -1,0 +1,175 @@
+<ion-content>
+  <main class="screen">
+    <header class="top">
+      <button type="button" class="back" aria-label="Volver" (click)="atras()"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></button>
+      <div>
+        <div class="label">{{ vista === 'categorias' ? 'Precios actualizados' : 'Tu cotización' }}</div>
+        <h1>{{ vista === 'detalle' && categoria ? categoria.nombre : vista === 'lista' ? 'Zona y total' : 'Arma tu cotización' }}</h1>
+      </div>
+    </header>
+
+    <!-- Progreso: qué falta para pedir -->
+    <ol class="progreso" aria-label="Pasos de la cotización">
+      <li *ngFor="let p of pasos; let i = index" [class.hecho]="i + 1 < paso" [class.actual]="i + 1 === paso" [attr.aria-current]="i + 1 === paso ? 'step' : null">
+        <span class="barra"></span>{{ p }}
+      </li>
+    </ol>
+
+    <p *ngIf="loading" role="status" class="status">Cargando precios…</p>
+
+    <!-- Error de carga -->
+    <section *ngIf="!loading && !ready" class="alerta" role="alert">
+      <strong>No pudimos cargar los precios</strong>
+      <span>{{ error || 'Revisa tu conexión e inténtalo de nuevo.' }}</span>
+      <button type="button" class="btn-primary" (click)="load()">Reintentar</button>
+      <a *ngIf="asesorUrl" class="btn-secondary" [href]="asesorUrl" target="_blank" rel="noopener">Hablar con un asesor</a>
+    </section>
+
+    <!-- ===== 1 · Categorías ===== -->
+    <ng-container *ngIf="ready && vista === 'categorias'">
+      <p class="lead">Elige qué quieres limpiar y ve el precio al instante. Sin cuenta y sin compromiso.</p>
+      <div class="cats">
+        <button *ngFor="let c of categorias; let i = index" type="button" class="cat" (click)="elegirCategoria(c)">
+          <span class="cat-icon" [attr.data-color]="i % 3"><ssc-icon [name]="iconoDe(c)" [size]="30" [strokeWidth]="1.9" /></span>
+          <span class="cat-nombre">{{ c.nombre }}</span>
+          <span class="cat-desde">Desde {{ dinero(desdeDe(c)) }}</span>
+          <span class="cat-desc" *ngIf="c.descripcion">{{ c.descripcion }}</span>
+        </button>
+      </div>
+      <aside class="promesa">
+        <span class="promesa-ico"><ssc-icon name="shield" [size]="22" /></span>
+        <p><strong>Cotizar no te compromete.</strong> No se crea ningún pedido hasta que tú lo confirmes.</p>
+      </aside>
+      <button *ngIf="lineas.length" type="button" class="barra-lista" (click)="verLista()">
+        <span class="bl-icono"><ssc-icon name="quote" [size]="22" /></span>
+        <span class="bl-txt"><strong>Tu cotización</strong><small>{{ lineas.length }} {{ lineas.length === 1 ? 'servicio' : 'servicios' }} · {{ dinero(subtotalLista) }}</small></span>
+        <span class="bl-ir">Ver<ssc-icon name="chevron-right" [size]="18" [strokeWidth]="2.4" /></span>
+      </button>
+    </ng-container>
+
+    <!-- ===== 2 · Detalle de una categoría ===== -->
+    <ng-container *ngIf="ready && vista === 'detalle' && cfg && tipo">
+      <h2 class="lbl">{{ cfg.preguntaTipo }}</h2>
+      <div *ngIf="estiloTipo === 'chips'" class="chips" role="radiogroup" [attr.aria-label]="cfg.preguntaTipo">
+        <button *ngFor="let t of est.tipos" type="button" role="radio" class="chip" [class.on]="t === tipo" [attr.aria-checked]="t === tipo" (click)="elegirTipo(t)">{{ t.etiqueta }}</button>
+      </div>
+      <div *ngIf="estiloTipo === 'tarjetas'" class="opts cols-2" role="radiogroup" [attr.aria-label]="cfg.preguntaTipo">
+        <button *ngFor="let t of est.tipos" type="button" role="radio" class="opt" [class.on]="t === tipo" [attr.aria-checked]="t === tipo" (click)="elegirTipo(t)">
+          <span class="opt-nombre">{{ t.etiqueta }}</span>
+          <small *ngIf="t.subtitulo">{{ t.subtitulo }}</small>
+          <small *ngIf="!t.subtitulo && t.variantes.length > 1">desde</small>
+          <span class="opt-precio">{{ dinero(t.desde) }}</span>
+        </button>
+      </div>
+
+      <p *ngIf="tipo.descripcion" class="info"><strong>{{ tipo.etiqueta }}:</strong> {{ tipo.descripcion }}</p>
+
+      <ng-container *ngIf="conVariantes && tipo">
+        <h2 class="lbl">{{ cfg.preguntaVariante }} <small>el precio cambia</small></h2>
+        <div class="opts cols-3" role="radiogroup" [attr.aria-label]="cfg.preguntaVariante">
+          <button *ngFor="let v of tipo.variantes" type="button" role="radio" class="opt" [class.on]="v === variante" [attr.aria-checked]="v === variante" (click)="elegirVariante(v)">
+            <span class="opt-nombre">{{ v.material }}</span>
+            <small>{{ v.detalle || 'c/u' }}</small>
+            <span class="opt-precio">{{ dinero(v.precio_unitario) }}</span>
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="est.extras.length">
+        <h2 class="lbl">Extras <small>opcional</small></h2>
+        <div class="extras">
+          <div *ngFor="let e of est.extras" class="extra">
+            <span class="extra-txt"><strong>{{ etiquetaExtra(e) }}</strong><small>+{{ dinero(e.precio_unitario) }} por unidad</small></span>
+            <button type="button" role="switch" class="switch" [class.on]="extrasSel.includes(e.id_tarifa)" [attr.aria-checked]="extrasSel.includes(e.id_tarifa)" [attr.aria-label]="e.tipo_item" (click)="alternarExtra(e.id_tarifa)"><span></span></button>
+          </div>
+        </div>
+      </ng-container>
+
+      <p *ngIf="cfg.nota" class="nota">{{ cfg.nota }}</p>
+
+      <h2 class="lbl">{{ copiaCantidad.pregunta }}</h2>
+      <div class="cantidad">
+        <span>{{ copiaCantidad.etiqueta }}</span>
+        <div class="stepper">
+          <button type="button" aria-label="Quitar una" [disabled]="cantidadMin" (click)="cambiarCantidad(-1)"><ssc-icon name="minus" [size]="20" [strokeWidth]="2.4" /></button>
+          <span class="num" aria-live="polite">{{ cantidad }}</span>
+          <button type="button" class="plus" aria-label="Agregar una" [disabled]="cantidadMax" (click)="cambiarCantidad(1)"><ssc-icon name="plus" [size]="20" [strokeWidth]="2.4" /></button>
+        </div>
+      </div>
+
+      <div class="subtotal"><span>{{ cantidad }} × {{ dinero(unitarioSel) }}</span><strong>{{ dinero(importeSel) }}</strong></div>
+      <button type="button" class="btn-primary" [disabled]="!variante" (click)="agregarALista()">Agregar a mi lista</button>
+    </ng-container>
+
+    <!-- ===== 3 · Mi lista ===== -->
+    <ng-container *ngIf="ready && vista === 'lista'">
+      <div class="items">
+        <article *ngFor="let l of lineas; let i = index" class="item">
+          <span class="item-icon"><ssc-icon [name]="iconoLinea(l)" [size]="26" [strokeWidth]="1.8" /></span>
+          <div class="item-txt"><strong>{{ tituloDe(l) }}</strong><small>{{ detalleDe(l) }}</small></div>
+          <div class="item-precio"><span>{{ dinero(importeDe(l)) }}</span><button type="button" class="quitar" (click)="quitar(i)">Quitar</button></div>
+        </article>
+      </div>
+      <button type="button" class="btn-secondary mas" (click)="vista = 'categorias'"><ssc-icon name="plus" [size]="18" [strokeWidth]="2.4" />Agregar otro servicio</button>
+
+      <label class="lbl" for="q-depto">¿En qué departamento estás?</label>
+      <button id="q-depto" type="button" class="select" aria-haspopup="dialog" (click)="deptoAbierto = true">
+        <span>{{ departamentoSel }}</span>
+        <ssc-icon name="chevron-down" [size]="22" [strokeWidth]="2.4" />
+      </button>
+
+      <h2 class="lbl">Elige tu zona <small>en {{ departamentoSel }}</small></h2>
+      <div class="zonas" role="radiogroup" aria-label="Zona">
+        <button *ngFor="let z of zonasDelDepartamento" type="button" role="radio" class="zona" [class.on]="z.zona.id_zona === idZona" [attr.aria-checked]="z.zona.id_zona === idZona" (click)="elegirZona(z.zona.id_zona)">
+          <span class="radio"><span></span></span>
+          <span class="zona-txt"><strong>{{ z.zona.nombre }}</strong><small *ngIf="z.distritos.length">{{ listaDistritos(z) }}</small></span>
+          <span class="zona-recargo" [class.gratis]="z.gratis">{{ z.gratis ? 'Gratis' : '+' + dinero(z.zona.recargo) }}</span>
+        </button>
+      </div>
+      <p *ngIf="infoZonaActual as zi" class="zona-resumen"><strong>Tu zona:</strong> {{ zi.departamento }} · {{ zi.zona.nombre }}. {{ zonaGratis ? 'Domicilio gratis.' : 'Recargo por zona: ' + dinero(zi.zona.recargo) + '.' }}</p>
+
+      <p *ngIf="errorCalculo" role="alert" class="error">{{ errorCalculo }} <button type="button" class="link inline" (click)="calcular()">Reintentar</button></p>
+      <section class="result" aria-live="polite">
+        <span class="sello">{{ calculando ? 'Calculando...' : 'Precio confirmado' }}</span>
+        <ng-container *ngIf="resultado; else esperando">
+          <div class="row"><span>Subtotal</span><span>{{ dinero(resultado.subtotal) }}</span></div>
+          <div class="row"><span>Recargo por zona</span><span>{{ dinero(resultado.recargo_zona) }}</span></div>
+          <div class="total"><span>Total estimado</span><strong>{{ dinero(resultado.total) }}</strong></div>
+        </ng-container>
+        <ng-template #esperando>
+          <div class="row"><span>Subtotal</span><span>{{ dinero(subtotalLista) }}</span></div>
+          <div class="row"><span>Recargo por zona</span><span>—</span></div>
+          <div class="total"><span>Total estimado</span><strong>—</strong></div>
+        </ng-template>
+      </section>
+      <p class="nota">Precio estimado: lo confirmamos contigo. Aún no se crea ningún pedido.</p>
+      <button type="button" class="btn-primary" [disabled]="!resultado || calculando" (click)="pedir()">Pedir esto</button>
+    </ng-container>
+  </main>
+
+  <!-- Selector de departamento (lista propia, igual en cualquier dispositivo) -->
+  <div *ngIf="deptoAbierto" class="velo" (click)="deptoAbierto = false"></div>
+  <section *ngIf="deptoAbierto" class="sheet sheet-lista" role="dialog" aria-modal="true" aria-labelledby="depto-titulo">
+    <span class="asa"></span>
+    <h2 id="depto-titulo" class="sheet-titulo">¿En qué departamento estás?</h2>
+    <ul class="opciones" role="radiogroup" aria-label="Departamento">
+      <li *ngFor="let d of departamentos">
+        <button type="button" role="radio" [class.on]="d.nombre === departamentoSel" [attr.aria-checked]="d.nombre === departamentoSel" (click)="elegirDepartamento(d.nombre); deptoAbierto = false">
+          <span>{{ d.nombre }}</span>
+          <ssc-icon *ngIf="d.nombre === departamentoSel" name="check" [size]="20" [strokeWidth]="2.6" />
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Invitado: debe entrar para pedir -->
+  <div *ngIf="cuentaAbierta" class="velo" (click)="cerrarCuenta()"></div>
+  <section *ngIf="cuentaAbierta" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-titulo">
+    <span class="asa"></span>
+    <div class="sheet-head"><span class="sheet-icon"><ssc-icon name="profile" [size]="28" /></span><h2 id="sheet-titulo">Entra para hacer tu pedido</h2></div>
+    <p>Guardamos tu lista. Al entrar seguimos con fecha y dirección, sin volver a elegir nada.</p>
+    <a routerLink="/login" [queryParams]="{ returnUrl: '/cotizar/pedido' }" class="btn-primary">Iniciar sesión</a>
+    <a routerLink="/registro" [queryParams]="{ returnUrl: '/cotizar/pedido' }" class="btn-secondary">Crear cuenta</a>
+    <button type="button" class="link" (click)="cerrarCuenta()">Seguir cotizando</button>
+  </section>
+</ion-content>

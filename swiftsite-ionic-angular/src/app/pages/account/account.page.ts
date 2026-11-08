@@ -1,39 +1,138 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
+import { PerfilService } from '../../core/perfil.service';
+import { PedidosService } from '../../core/pedidos.service';
 import { httpError } from '../../core/api.interceptor';
 import { IconComponent } from '../../shared/icon.component';
+import { whatsappMensaje, whatsappUrl } from '../../data';
+import { Tema, elegirTema, temaActual } from '../../core/tema';
+import { PREGUNTAS_FRECUENTES } from './faq';
+import { LEGAL_VERSION } from '../legal/legal';
+import {
+  ErroresClave, ErroresDatos, EstadisticasPerfil, direccionesUsadas, estadisticas, evaluarClave,
+  hayErrores, iniciales, validarCambioClave, validarDatos,
+} from './perfil';
+
+type Vista = 'perfil' | 'editar' | 'clave' | 'direcciones' | 'faq' | 'eliminar';
 
 @Component({
-  selector: 'app-account', standalone: true, imports: [CommonModule, IonContent, IconComponent],
+  selector: 'app-account', standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, IonContent, IconComponent],
+  templateUrl: './account.page.html',
   styleUrls: ['./account.page.scss'],
-  template: `<ion-content>
-    <main class="screen">
-      <ng-container *ngIf="pedidos; else perfil"><h1>Mis pedidos</h1><p class="nota">El seguimiento de pedidos se implementará en el Sprint 3. Todavía no hay un listado conectado.</p></ng-container>
-      <ng-template #perfil>
-        <h1>Mi perfil</h1>
-        <section class="perfil">
-          <div class="avatar" aria-hidden="true"><ssc-icon name="profile" [size]="36" /></div>
-          <p class="nombre">{{ auth.session.usuario()?.nombre }}</p>
-          <p class="dato">{{ auth.session.usuario()?.correo }}</p>
-          <p class="dato" *ngIf="auth.session.usuario()?.telefono">{{ auth.session.usuario()?.telefono }}</p>
-        </section>
-        <p *ngIf="error" class="error" role="alert">{{ error }}</p>
-        <button class="btn-logout" [disabled]="busy" (click)="logout()">Cerrar sesión</button>
-      </ng-template>
-    </main></ion-content>`,
 })
 export class AccountPage {
   readonly auth = inject(AuthService);
+  private perfil = inject(PerfilService);
+  private pedidosApi = inject(PedidosService);
   private router = inject(Router);
-  pedidos = inject(ActivatedRoute).snapshot.data['pedidos'] === true;
+
+  readonly version = LEGAL_VERSION;
+  readonly whatsapp = whatsappUrl();
+  readonly reportar = whatsappMensaje('Hola SwiftSite Clean 👋\nQuiero reportar un problema con mi servicio.');
+  readonly preguntas = PREGUNTAS_FRECUENTES;
+  readonly iniciales = iniciales;
+  readonly evaluarClave = evaluarClave;
+
+  vista: Vista = 'perfil';
+  stats: EstadisticasPerfil | null = null;
+  direcciones: string[] = [];
+  oscuro = temaActual() === 'oscuro';
+  /** Aún no hay valoraciones ni reportes conectados a la API: se muestran como "—". */
+  readonly valoraciones: number | null = null;
+  readonly reportes: number | null = null;
   busy = false;
   error = '';
+  ok = '';
+
+  // Editar
+  datos = { nombre: '', telefono: '' };
+  erroresDatos: ErroresDatos = {};
+
+  // Cambiar contraseña
+  clave = { actual: '', nueva: '', confirmacion: '' };
+  erroresClave: ErroresClave = {};
+  verClave = false;
+
+  // Eliminar cuenta
+  passwordEliminar = '';
+
+  get usuario() { return this.auth.session.usuario(); }
+
+  /** Ionic reutiliza las pestañas: refresca las cifras cada vez que se vuelve a entrar. */
+  ionViewWillEnter(): void {
+    this.oscuro = temaActual() === 'oscuro';
+    this.cerrarVista();
+    this.pedidosApi.mios().subscribe({
+      next: pedidos => { this.stats = estadisticas(pedidos); this.direcciones = direccionesUsadas(pedidos); },
+      error: () => { this.stats = null; this.direcciones = []; },
+    });
+  }
+
+  abrir(vista: Vista): void {
+    this.error = ''; this.ok = '';
+    this.erroresDatos = {}; this.erroresClave = {};
+    this.verClave = false;
+    this.clave = { actual: '', nueva: '', confirmacion: '' };
+    this.passwordEliminar = '';
+    if (vista === 'editar') this.datos = { nombre: this.usuario?.nombre ?? '', telefono: this.usuario?.telefono ?? '' };
+    this.vista = vista;
+  }
+
+  cerrarVista(): void { this.abrir('perfil'); }
+
+  cambiarTema(): void {
+    const tema: Tema = this.oscuro ? 'claro' : 'oscuro';
+    elegirTema(tema);
+    this.oscuro = tema === 'oscuro';
+  }
+
+  async guardarDatos(): Promise<void> {
+    if (this.busy) return;
+    this.erroresDatos = validarDatos(this.datos.nombre, this.datos.telefono);
+    if (hayErrores(this.erroresDatos)) return;
+    await this.ejecutar(async () => {
+      await this.perfil.actualizar(this.datos.nombre, this.datos.telefono);
+      this.cerrarVista();
+      this.ok = 'Tus datos se guardaron.';
+    });
+  }
+
+  async guardarClave(): Promise<void> {
+    if (this.busy) return;
+    this.erroresClave = validarCambioClave(this.clave.actual, this.clave.nueva, this.clave.confirmacion);
+    if (hayErrores(this.erroresClave)) return;
+    await this.ejecutar(async () => {
+      await this.perfil.cambiarClave(this.clave.actual, this.clave.nueva, this.clave.confirmacion);
+      this.cerrarVista();
+      this.ok = 'Tu contraseña se actualizó. Cerramos tus otras sesiones.';
+    });
+  }
+
+  async eliminarCuenta(): Promise<void> {
+    if (this.busy) return;
+    if (!this.passwordEliminar) { this.error = 'Escribe tu contraseña para confirmar.'; return; }
+    await this.ejecutar(async () => {
+      await this.perfil.eliminar(this.passwordEliminar);
+      await this.router.navigateByUrl('/inicio', { replaceUrl: true });
+    });
+  }
+
   async logout(): Promise<void> {
+    await this.ejecutar(async () => {
+      await this.auth.logout();
+      await this.router.navigateByUrl('/inicio', { replaceUrl: true });
+    });
+  }
+
+  private async ejecutar(accion: () => Promise<void>): Promise<void> {
     this.busy = true;
-    try { await this.auth.logout(); await this.router.navigateByUrl('/inicio', { replaceUrl: true }); }
+    this.error = '';
+    try { await accion(); }
     catch (error) { this.error = httpError(error); }
     finally { this.busy = false; }
   }

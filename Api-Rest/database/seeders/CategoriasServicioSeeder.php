@@ -10,10 +10,15 @@ class CategoriasServicioSeeder extends Seeder
     public function run(): void
     {
         foreach (['Sillas', 'Muebles', 'Colchones', 'Baños'] as $categoria) {
-            DB::table('categorias_servicio')->updateOrInsert(
-                ['nombre' => $categoria],
-                ['descripcion' => 'Servicio de limpieza de ' . $categoria, 'activo' => 1]
-            );
+            // Solo crea lo que falta: no pisa lo que el administrador ya editó u ocultó.
+            DB::table('categorias_servicio')->insertOrIgnore([
+                'nombre' => $categoria,
+                'descripcion' => 'Servicio de limpieza de ' . $categoria,
+                'activo' => 1,
+            ]);
         }
+
+        // Ícono, preguntas y notas con que la app muestra cada servicio.
+        PresentacionCatalogo::aplicar();
     }
 }

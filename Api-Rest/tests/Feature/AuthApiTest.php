@@ -18,6 +18,8 @@ class AuthApiTest extends TestCase
         foreach (['roles', 'usuarios', 'personal_access_tokens', 'categorias_servicio'] as $table) {
             (require glob(database_path("migrations/*_create_{$table}_table.php"))[0])->up();
         }
+        (require glob(database_path('migrations/*_add_consentimiento_to_usuarios.php'))[0])->up();
+        (require glob(database_path('migrations/*_permitir_cliente_sin_correo.php'))[0])->up();
     }
 
     private function credentials(): array
@@ -25,6 +27,7 @@ class AuthApiTest extends TestCase
         return [
             'nombre' => 'Cliente prueba', 'correo' => 'cliente@example.com',
             'password' => 'clave-segura-123', 'password_confirmation' => 'clave-segura-123',
+            'acepta_terminos' => true,
         ];
     }
 
@@ -45,6 +48,36 @@ class AuthApiTest extends TestCase
         $this->assertNotNull(PersonalAccessToken::findToken($response->json('token')));
         $this->bearer($response->json('token'))->get('/api/me')->assertOk()->assertJsonPath('correo', 'cliente@example.com');
         $this->bearer($response->json('token'))->postJson('/api/categorias', ['nombre' => 'Sillas'])->assertForbidden();
+    }
+
+    public function test_un_cliente_agregado_desde_el_panel_reclama_su_cuenta_al_registrarse(): void
+    {
+        $rol = \App\Models\Rol::firstOrCreate(['nombre_rol' => 'Cliente']);
+        $agregado = Usuario::create(['id_rol' => $rol->getKey(), 'nombre' => 'Ana (panel)', 'telefono' => '7000-1111', 'correo' => 'cliente@example.com']);
+        $this->assertNull($agregado->password_hash);
+
+        $respuesta = $this->postJson('/api/register', $this->credentials())->assertCreated()->assertJsonPath('usuario.nombre', 'Cliente prueba');
+
+        // Es la misma persona: no se duplica, conserva su teléfono y ahora puede entrar.
+        $this->assertSame(1, Usuario::count());
+        $agregado->refresh();
+        $this->assertSame($agregado->getKey(), $respuesta->json('usuario.id_usuario'));
+        $this->assertSame('7000-1111', $agregado->telefono);
+        $this->assertTrue(Hash::check('clave-segura-123', $agregado->password_hash));
+        $this->assertNotNull($agregado->terminos_aceptados_en);
+        $this->postJson('/api/login', ['correo' => 'cliente@example.com', 'password' => 'clave-segura-123'])->assertOk();
+
+        // Una vez reclamada, nadie más puede registrarse con ese correo.
+        $this->postJson('/api/register', $this->credentials())->assertUnprocessable()->assertJsonValidationErrors('correo');
+    }
+
+    public function test_una_cuenta_sin_contrasena_que_no_es_de_cliente_no_se_puede_reclamar(): void
+    {
+        $admin = \App\Models\Rol::firstOrCreate(['nombre_rol' => 'Administrador']);
+        Usuario::create(['id_rol' => $admin->getKey(), 'nombre' => 'Admin', 'correo' => 'cliente@example.com']);
+
+        $this->postJson('/api/register', $this->credentials())->assertUnprocessable()->assertJsonValidationErrors('correo');
+        $this->assertNull(Usuario::firstOrFail()->password_hash);
     }
 
     public function test_registration_validation_and_role_escalation_are_rejected(): void

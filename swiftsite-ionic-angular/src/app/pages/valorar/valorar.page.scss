@@ -1,18 +1,26 @@
 @use '../../../styles/ssc' as *;
 
 ion-content { --background: #{$bone}; }
-.screen { @include screen(17px); }
+.screen { @include screen(17px); padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 
 .top { display: flex; align-items: center; gap: 12px; }
 .back { @include back-button; }
 h1 { margin: 0; @include display(31px, 34px); }
+h2 { margin: 0; @include display(21px); letter-spacing: -0.02em; }
+
+.estado { margin: 24px 0 0; font-size: 17px; color: $gris; }
+.aviso {
+  margin-top: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; @include card(22px);
+  ssc-icon { color: $error; }
+  p { margin: 0; font-size: 17px; line-height: 23px; }
+}
 
 .pedido { margin-top: 16px; padding: 12px 18px 14px; @include card(22px); }
 .id { font-size: 15px; color: $gris; line-height: 20px; }
 .servicio { font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
 .detalle { font-size: 16px; line-height: 22px; }
 
-.lbl { margin-top: 20px; font-weight: 600; font-size: 17px; span { font-weight: 400; color: $gris; } }
+.lbl { display: block; margin-top: 20px; font-weight: 600; font-size: 17px; span { font-weight: 400; color: $gris; } }
 
 .estrellas { margin-top: 12px; display: flex; justify-content: space-between; padding: 0 6px;
   button { background: none; border: 0; padding: 0; color: $ink; cursor: pointer; display: flex; } }
@@ -22,7 +30,35 @@ h1 { margin: 0; @include display(31px, 34px); }
 .pill { @include pill(44px, 18px); padding: 0 20px; }
 
 textarea { @include field(94px); margin-top: 8px; padding: 12px 18px; border-radius: 20px; font-size: 19px; line-height: 24px; resize: none; }
-.nota { margin: 10px 0 0; font-size: 15px; line-height: 20px; color: $gris; }
+.contador { margin-top: 6px; text-align: right; font-size: 13px; color: $gris; &.excede { color: $error; font-weight: 700; } }
 
-.btn-primary { @include btn-primary(); margin-top: auto; }
-.nota + .btn-primary { margin-top: 24px; }
+.error, .falta { margin: 14px 0 0; font-size: 15px; line-height: 20px; }
+.error { color: $error; font-weight: 600; }
+.falta { color: $gris; }
+
+.btn-primary { @include btn-primary(); margin-top: 20px; }
+.btn-secundario { @include btn-secondary(52px, 17px); margin-top: 12px; width: calc(100% - 4px); }
+.aviso .btn-secundario { margin-top: 0; }
+
+// ----- Ya valoró este pedido -----
+.previo {
+  margin-top: 22px; padding: 16px; @include card(22px); box-shadow: 4px 4px 0 $borde; width: calc(100% - 4px);
+  p { margin: 12px 0 0; font-size: 16px; line-height: 22px; }
+  .estrellas-fijas { display: flex; gap: 4px; color: $ink; }
+  .btn-primary { margin-top: 18px; }
+}
+
+// ----- Valoración enviada -----
+.exito-marca {
+  margin: 60px auto 0; width: 84px; height: 84px; display: flex; align-items: center; justify-content: center;
+  background: $sol; border: 2px solid $borde; border-radius: 26px; box-shadow: 4px 4px 0 $borde; color: $tinta;
+}
+.exito { margin: 22px 0 0; text-align: center; @include display(36px, 40px); }
+.exito-txt { margin: 10px 0 0; text-align: center; font-size: 17px; line-height: 23px; color: $gris; }
+.resumen {
+  margin-top: 26px; padding: 16px; @include card(22px); box-shadow: 4px 4px 0 $borde; width: calc(100% - 4px);
+  .resumen-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid $linea; }
+  .num { font-family: $font-ui; font-weight: 700; font-size: 20px; }
+  .fila { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; font-size: 16px; span { flex: none; white-space: nowrap; color: $gris; } strong { font-weight: 600; text-align: right; } }
+}
+.resumen + .btn-primary { margin-top: 26px; }

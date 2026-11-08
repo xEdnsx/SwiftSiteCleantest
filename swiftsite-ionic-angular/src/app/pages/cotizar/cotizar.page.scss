@@ -14,110 +14,46 @@ h2 { margin: 22px 0 0; @include display(21px); letter-spacing: -0.02em; }
   margin-top: 14px;
   display: flex;
   gap: 7px;
-  span { flex: 1; height: 10px; border: 2px solid $ink; border-radius: 999px; background: #fff; &.done { background: $aqua; } }
+  span { flex: 1; height: 10px; border: 2px solid $borde; border-radius: 999px; background: $superficie; &.done { background: $aqua; } }
 }
 
-// ----- Paso 1 -----
-.categorias { margin-top: 20px; display: flex; flex-direction: column; gap: 13px; }
-.cat {
-  width: calc(100% - 4px);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 18px 14px 14px;
-  text-align: left;
-  background: #fff;
-  border: 2px solid $ink;
-  border-radius: 24px;
-  box-shadow: 4px 4px 0 $ink;
-  color: $ink;
-  font-family: inherit;
-  cursor: pointer;
-  .cat-icon { width: 62px; height: 62px; flex: none; display: flex; align-items: center; justify-content: center; background: $sol; border: 2px solid $ink; border-radius: 18px; }
-  .cat-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .cat-text strong { font-family: $font-ui; font-weight: 700; font-size: 22px; line-height: 28px; }
-  .cat-text span { font-size: 16px; line-height: 21px; color: $gris; margin-top: 2px; }
-  .radio { width: 36px; height: 36px; flex: none; display: flex; align-items: center; justify-content: center; border: 2px solid $ink; border-radius: 50%; background: #fff; color: #fff; }
-  &.selected {
-    background: $aqua-suave;
-    border: 2.5px solid $blue;
-    box-shadow: 4px 4px 0 $blue;
-    .cat-icon { background: $aqua; }
-    .radio { background: $blue; border-color: $blue; }
-  }
-}
-
-// ----- Paso 2 -----
-.pills { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+// ----- Controles compartidos -----
 .pill { @include pill(); }
 
-.materiales { margin-top: 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.material {
-  height: 76px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  background: #fff; border: 2px solid $ink; border-radius: 18px;
-  font-family: inherit; font-size: 16px; font-weight: 500; color: $ink; cursor: pointer;
-  &.selected { background: $aqua-suave; border: 2.5px solid $blue; }
-}
-.muestra { width: 34px; height: 34px; border: 2px solid $ink; border-radius: 9px; }
-.muestra.tela { background: repeating-linear-gradient(135deg, #C9DDF7 0 5px, #fff 5px 10px); }
-.muestra.cuero { background: #8B4A2B; }
-.muestra.microfibra { background: radial-gradient(circle at 35% 30%, #EDE4D3 0, #CBBFA8 70%); }
-.hint { margin: 8px 0 0; font-size: 15px; line-height: 20px; color: $gris; }
-
-.cantidad {
-  margin-top: 12px; min-height: 67px; padding: 0 16px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  @include card(20px);
-  > span { font-size: 17px; }
-}
-.stepper {
-  display: flex; align-items: center; gap: 14px;
-  button { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #fff; border: 2px solid $ink; border-radius: 50%; color: $ink; cursor: pointer; padding: 0; &.plus { background: $aqua; } }
-  .num { min-width: 14px; text-align: center; @include display(28px); }
-}
-
-.subtotal {
-  margin-top: 16px; height: 60px; padding: 0 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  background: $ink; border-radius: 20px; color: #fff;
-  span { font-size: 16px; color: $menu; }
-  strong { @include display(32px); letter-spacing: -0.02em; color: $cielo; }
-}
-
-// ----- Paso 3 -----
+// ----- Paso 1 · dónde y cuándo -----
 .lbl { margin-top: 18px; font-weight: 600; font-size: 17px; small { font-weight: 400; font-size: 15px; color: $gris; } }
-.select {
-  position: relative; margin-top: 8px;
-  select { @include field(52px); appearance: none; padding-right: 44px; font-size: 20px; font-weight: 500; }
-  ssc-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-}
 .zona-chip {
   margin-top: 8px; align-self: flex-start; min-height: 27px; padding: 0 11px 0 9px;
   display: inline-flex; align-items: center; gap: 6px;
   background: $aqua-suave; border: 1.5px solid $blue; border-radius: 999px;
   font-size: 14px; font-weight: 600; color: $blue-dark;
-  &.recargo { background: #fff3cd; border-color: $ink; color: $ink; padding-left: 11px; }
+  &.recargo { background: #fff3cd; border-color: $borde; color: $tinta; padding-left: 11px; }
 }
+.zona-card {
+  margin-top: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; @include card(20px);
+  .zona-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; strong { font-size: 17px; font-weight: 600; } small { font-size: 14px; color: $gris; } }
+  .cambiar { flex: none; font-size: 15px; font-weight: 600; color: $blue; text-decoration: underline; }
+}
+.ayuda { margin: 6px 0 0; font-size: 14px; line-height: 19px; color: $gris; &.mal { color: $error; font-weight: 500; } &.bien { color: $blue-dark; font-weight: 500; } }
+.vacia {
+  margin-top: 24px; padding: 18px; display: flex; flex-direction: column; gap: 6px; background: $sol; border: 2px solid $borde; border-radius: 22px; color: $tinta;
+  strong { font-size: 20px; font-family: $font-ui; font-weight: 700; } span { font-size: 16px; line-height: 21px; }
+  .btn-primary { margin-top: 14px; background: #fff; }
+}
+.error { margin: 14px 0 0; color: $error; font-weight: 500; }
+.link { background: none; border: 0; padding: 0; font-family: inherit; font-size: inherit; font-weight: 600; color: $blue; text-decoration: underline; cursor: pointer; }
 .direccion { @include field(72px); margin-top: 8px; padding: 12px 18px; font-size: 19px; line-height: 24px; resize: none; }
 
 .dias { margin-top: 8px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .dia {
   height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: #fff; border: 2px solid $ink; border-radius: 16px; font-family: inherit; font-size: 15px; color: $ink; cursor: pointer; padding: 0;
+  background: $superficie; border: 2px solid $borde; border-radius: 16px; font-family: inherit; font-size: 15px; color: $ink; cursor: pointer; padding: 0;
   strong { @include display(25px, 28px); letter-spacing: 0; }
-  &.active { background: $ink; color: #fff; strong { color: $cielo; } }
+  &.active { background: $activo; color: $activo-texto; strong { color: $activo-texto; } }
 }
 .horas { margin-top: 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; .pill { justify-content: center; padding: 0; font-size: 18px; } }
 
-.fotos {
-  margin-top: 16px; height: 56px;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: transparent; border: 2px dashed $ink; border-radius: 18px;
-  font-family: inherit; font-size: 18px; font-weight: 600; color: $ink; cursor: pointer;
-}
-
-// ----- Paso 4 -----
+// ----- Paso 2 · resumen -----
 .panel { margin-top: 20px; @include card(22px); h2 { margin: 0; padding: 14px 18px 12px; font-size: 20px; } }
 .panel.donde { margin-top: 14px; padding: 14px 18px; h2 { padding: 0; font-size: 21px; } }
 .linea { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid $linea; }
@@ -127,7 +63,7 @@ h2 { margin: 22px 0 0; @include display(21px); letter-spacing: -0.02em; }
 .dato { margin-top: 10px; display: flex; align-items: center; gap: 12px; font-size: 17px; line-height: 22px; & + .dato { margin-top: 8px; } ssc-icon { flex: none; } }
 
 .totales {
-  margin-top: 14px; padding: 16px 18px; background: $ink; border-radius: 22px; color: #fff;
+  margin-top: 14px; padding: 16px 18px; background: $panel; border-radius: 22px; color: #fff;
   .t-row { display: flex; justify-content: space-between; font-size: 17px; color: $menu; & + .t-row { margin-top: 6px; } }
   .t-total {
     margin-top: 12px; padding-top: 14px; border-top: 1px solid #3B506B;

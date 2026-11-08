@@ -1,34 +1,80 @@
 <ion-content>
   <main class="screen">
-    <header class="top">
-      <a routerLink="/pedidos" class="back" aria-label="Volver"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
-      <h1>Valora tu servicio</h1>
-    </header>
+    <ng-container *ngIf="!enviada; else listo">
+      <header class="top">
+        <a routerLink="/pedidos" class="back" aria-label="Volver"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
+        <h1>Valora tu servicio</h1>
+      </header>
 
-    <section class="pedido">
-      <div class="id">Pedido {{ pedido.id }}</div>
-      <div class="servicio">{{ pedido.servicio }}</div>
-      <div class="detalle">{{ pedido.detalle }}</div>
-    </section>
+      <p *ngIf="cargando" class="estado" role="status">Cargando tu pedido…</p>
 
-    <div class="lbl">¿Cómo te fue?</div>
-    <div class="estrellas" role="radiogroup" aria-label="Calificación">
-      <button *ngFor="let n of [1, 2, 3, 4, 5]" type="button" role="radio" [attr.aria-checked]="estrellas === n"
-              [attr.aria-label]="n + (n === 1 ? ' estrella' : ' estrellas')" (click)="estrellas = n">
-        <ssc-icon name="star" [size]="40" [strokeWidth]="1.6" [filled]="n <= estrellas" />
-      </button>
-    </div>
-    <div class="etiqueta">{{ etiquetasEstrellas[estrellas] }}</div>
+      <section *ngIf="!cargando && errorCarga" class="aviso" role="alert">
+        <ssc-icon name="warning" [size]="22" />
+        <p>{{ errorCarga }}</p>
+        <button *ngIf="!pedido" type="button" class="btn-secundario" (click)="cargar()">Reintentar</button>
+        <a routerLink="/pedidos" class="btn-secundario">Volver a mis pedidos</a>
+      </section>
 
-    <div class="lbl">¿Qué te gustó?</div>
-    <div class="pills">
-      <button *ngFor="let a of aspectos" type="button" class="pill" [class.active]="elegidos.has(a)" [attr.aria-pressed]="elegidos.has(a)" (click)="alternar(a)">{{ a }}</button>
-    </div>
+      <ng-container *ngIf="!cargando && !errorCarga && pedido && vista">
+        <section class="pedido">
+          <div class="id">Pedido {{ vista.id }}</div>
+          <div class="servicio">{{ vista.titulo }}</div>
+          <div class="detalle">{{ vista.fecha }} · {{ vista.zona }}</div>
+        </section>
 
-    <label class="lbl" for="comentario">Cuéntanos más <span>(opcional)</span></label>
-    <textarea id="comentario" [(ngModel)]="comentario" name="comentario" rows="3" placeholder="Ej. El baño quedó como nuevo."></textarea>
-    <p class="nota">Tu comentario se publica después de que el equipo lo revise.</p>
+        <!-- Ya valoró este pedido: la API solo permite una valoración por pedido -->
+        <section *ngIf="pedido.valoracion as v; else nueva" class="previo" role="status">
+          <h2>Ya valoraste este pedido</h2>
+          <p class="estrellas-fijas" role="img" [attr.aria-label]="v.estrellas + ' de 5 estrellas'">
+            <ssc-icon *ngFor="let n of [1, 2, 3, 4, 5]" name="star" [size]="26" [strokeWidth]="1.6" [filled]="n <= v.estrellas" />
+          </p>
+          <p>¡Gracias por contarnos cómo te fue!</p>
+          <a routerLink="/pedidos" class="btn-primary">Volver a mis pedidos</a>
+        </section>
 
-    <button type="button" class="btn-primary" (click)="enviar()">Enviar valoración</button>
+        <ng-template #nueva>
+          <div class="lbl" id="lbl-estrellas">¿Cómo te fue?</div>
+          <div class="estrellas" role="radiogroup" aria-labelledby="lbl-estrellas">
+            <button *ngFor="let n of [1, 2, 3, 4, 5]" type="button" role="radio" [attr.aria-checked]="estrellas === n"
+                    [attr.aria-label]="n + (n === 1 ? ' estrella' : ' estrellas')" (click)="elegirEstrellas(n)">
+              <ssc-icon name="star" [size]="40" [strokeWidth]="1.6" [filled]="n <= estrellas" />
+            </button>
+          </div>
+          <div class="etiqueta" aria-live="polite">{{ estrellas ? etiquetasEstrellas[estrellas] : 'Toca una estrella' }}</div>
+
+          <ng-container *ngIf="estrellas">
+            <div class="lbl" aria-live="polite">{{ textos.pregunta }} <span>(opcional)</span></div>
+            <div class="pills">
+              <button *ngFor="let a of aspectos" type="button" class="pill" [class.active]="elegidos.has(a)" [attr.aria-pressed]="elegidos.has(a)" (click)="alternar(a)">{{ etiquetaAspecto(a, estrellas) }}</button>
+            </div>
+          </ng-container>
+
+          <label class="lbl" for="comentario">Cuéntanos más <span>(opcional)</span></label>
+          <textarea id="comentario" [(ngModel)]="comentario" name="comentario" rows="3" [placeholder]="textos.ejemplo"></textarea>
+          <div class="contador" [class.excede]="largo > max">{{ largo }} / {{ max }}</div>
+
+          <p *ngIf="errorEnvio" class="error" role="alert">{{ errorEnvio }}</p>
+          <p *ngIf="!errorEnvio && !formulario.valido && (estrellas || comentario)" class="falta">{{ formulario.falta }}</p>
+
+          <button type="button" class="btn-primary" [disabled]="!formulario.valido || enviando" (click)="enviar()">{{ enviando ? 'Enviando…' : 'Enviar valoración' }}</button>
+          <a routerLink="/pedidos" class="btn-secundario">Cancelar</a>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #listo>
+      <div class="exito-marca"><ssc-icon name="star" [size]="46" [strokeWidth]="2.6" [filled]="true" /></div>
+      <h1 class="exito">¡Gracias por valorar!</h1>
+      <p class="exito-txt">Tu opinión nos ayuda a mejorar.</p>
+
+      <section class="resumen" *ngIf="enviada as v">
+        <div class="resumen-top"><span class="num">{{ v.estrellas }} de 5</span></div>
+        <div class="fila"><span>Pedido</span><strong>{{ vista ? vista.id + ' · ' + vista.titulo : '' }}</strong></div>
+        <div class="fila" *ngIf="v.aspectos.length"><span>{{ textosAspectos(v.estrellas).resumen }}</span><strong>{{ aspectosEscritos(v) }}</strong></div>
+      </section>
+
+      <a routerLink="/pedidos" class="btn-primary">Ir a mis pedidos</a>
+      <a routerLink="/inicio" class="btn-secundario">Volver al inicio</a>
+    </ng-template>
   </main>
 </ion-content>

@@ -38,6 +38,11 @@
       <ng-container *ngIf="register">
         <label for="confirmacion">Confirmar contraseña</label>
         <input id="confirmacion" class="field" type="password" name="confirmacion" [(ngModel)]="datos.password_confirmation" required autocomplete="new-password" placeholder="••••••••">
+
+        <label class="consent" for="acepta">
+          <input id="acepta" type="checkbox" name="acepta_terminos" [(ngModel)]="datos.acepta_terminos" required>
+          <span>He leído y acepto los <a routerLink="/terminos" target="_blank" rel="noopener">Términos de uso</a> y el <a routerLink="/privacidad" target="_blank" rel="noopener">Aviso de privacidad</a>, y autorizo el tratamiento de mis datos personales para prestarme el servicio.</span>
+        </label>
       </ng-container>
 
       <p *ngIf="error" role="alert" class="error">{{ error }}</p>

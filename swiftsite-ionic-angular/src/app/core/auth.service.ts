@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import { SessionService, Usuario } from './session.service';
 
 interface TokenResponse { usuario: Usuario; token: string; }
-export interface Registro { nombre: string; correo: string; telefono: string; password: string; password_confirmation: string; }
+export interface Registro { nombre: string; correo: string; telefono: string; password: string; password_confirmation: string; acepta_terminos: boolean; }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

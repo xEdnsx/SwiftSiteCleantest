@@ -26,6 +26,7 @@ class CatalogosApiTest extends TestCase
         DB::statement('CREATE TABLE zonas_cobertura (id_zona INTEGER PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(100) NOT NULL UNIQUE, recargo DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK(recargo >= 0), activo BOOLEAN NOT NULL DEFAULT 1)');
         DB::statement('CREATE TABLE detalle_pedidos (id_detalle INTEGER PRIMARY KEY, id_tarifa INTEGER NOT NULL REFERENCES tarifas_items(id_tarifa))');
         DB::statement('CREATE TABLE pedidos (id_pedido INTEGER PRIMARY KEY, id_zona INTEGER NOT NULL REFERENCES zonas_cobertura(id_zona))');
+        (require glob(database_path('migrations/*_add_presentacion_to_catalogo.php'))[0])->up();
     }
 
     private function authenticate(string $role = 'Administrador'): void

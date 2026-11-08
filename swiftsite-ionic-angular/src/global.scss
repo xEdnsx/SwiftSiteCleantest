@@ -20,10 +20,67 @@
   --font-inter: "Inter", sans-serif;
 }
 
+/* ---- Tema (claro / oscuro) ----
+   Los componentes usan los tokens de styles/_ssc.scss, que apuntan a estas variables.
+   El modo oscuro se activa con la clase "oscuro" en <html> (ver core/tema.ts). */
+:root {
+  --c-ink: #0B1F3A;
+  --c-borde: #0B1F3A;
+  --c-fondo: #F2F8FC;
+  --c-superficie: #FFFFFF;
+  --c-tile: #D9F7FA;
+  --c-gris: #4A5A70;
+  --c-linea: #DCE4EC;
+  --c-placeholder: #5F6E82;
+  --c-azul: #1E5BD8;
+  --c-azul-fuerte: #0F3FA0;
+  --c-error: #A12222;
+  --c-panel: #0B1F3A;
+  --c-activo: #0B1F3A;
+  --c-activo-texto: #FFFFFF;
+  --c-peligro: #A12222;
+  --c-peligro-texto: #FFFFFF;
+  --c-peligro-suave: #FDECEC;
+  --c-resalte: #B8EFFA;
+
+  --ion-text-color: var(--c-ink);
+  --ion-background-color: var(--c-fondo);
+  color-scheme: light;
+}
+:root.oscuro {
+  --c-ink: #F2F8FC;
+  --c-borde: #6C8FC4;
+  --c-fondo: #071428;
+  --c-superficie: #0E2444;
+  --c-tile: #12365E;
+  --c-gris: #9DB2CC;
+  --c-linea: #1F3D68;
+  --c-placeholder: #8CA3C2;
+  --c-azul: #7FA8FF;
+  --c-azul-fuerte: #A9C6FF;
+  --c-error: #FF8A80;
+  --c-panel: #163E6E;
+  --c-activo: #00E5FF;
+  --c-activo-texto: #0B1F3A;
+  --c-peligro: #FF8A80;
+  --c-peligro-texto: #0B1F3A;
+  --c-peligro-suave: #3A1B24;
+  --c-resalte: #1A4F7A;
+  color-scheme: dark;
+}
+
 body {
   font-family: var(--font-inter);
-  background-color: var(--ssc-hueso);
-  color: var(--ssc-tinta);
+  background-color: var(--c-fondo);
+  color: var(--c-ink);
+}
+ion-content { --color: var(--c-ink); --background: var(--c-fondo); }
+
+// Es una app de celular: sin barra de desplazamiento visible. En un navegador de escritorio esa barra
+// le quita ancho al contenido pero no a la barra de pestañas, y el contenido se ve corrido a la izquierda.
+ion-content::part(scroll) {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 a { text-decoration: none; }

@@ -64,6 +64,14 @@ class CategoriaController extends Controller
         return [
             'nombre' => [$required, 'required', 'string', 'max:80', Rule::unique('categorias_servicio', 'nombre')->ignore($categoria?->getKey(), 'id_categoria')],
             'descripcion' => ['sometimes', 'nullable', 'string', 'max:300'],
+            // Presentación en la app (todo opcional).
+            'icono' => ['sometimes', 'nullable', 'string', 'max:30', 'regex:/^[a-z0-9_-]+$/'],
+            'pregunta_tipo' => ['sometimes', 'nullable', 'string', 'max:80'],
+            'pregunta_variante' => ['sometimes', 'nullable', 'string', 'max:80'],
+            'pregunta_cantidad' => ['sometimes', 'nullable', 'string', 'max:80'],
+            'unidad' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'nota' => ['sometimes', 'nullable', 'string', 'max:300'],
+            'cantidad_max' => ['sometimes', 'nullable', 'integer', 'between:1,10000'],
             'activo' => ['sometimes', 'boolean'],
         ];
     }

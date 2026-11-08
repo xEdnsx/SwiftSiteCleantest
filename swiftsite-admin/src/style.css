@@ -119,3 +119,54 @@
     @apply inline-block bg-sol border-2 border-tinta text-tinta px-2.5 py-0.5 rounded-full text-xs font-inter font-bold;
   }
 }
+
+/* ---------- Fila recién creada, editada o llegada ----------
+   Banda redondeada que parpadea en el aqua de la marca, con una lucecita al inicio.
+   La tabla debe llevar `border-separate border-spacing-0` para que las puntas se redondeen. */
+.fila-nueva td {
+  background-color: color-mix(in srgb, var(--color-cielo, #9af3ff) 45%, white);
+  animation: latido 1.5s ease-in-out 3;
+}
+.fila-nueva td:first-child {
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+.fila-nueva td:last-child {
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+.fila-nueva td:first-child::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 10px;
+  vertical-align: middle;
+  border-radius: 9999px;
+  background: var(--color-aqua, #00e5ff);
+  border: 2px solid var(--color-tinta, #0b1f3a);
+  animation: luz 1.6s ease-out infinite;
+}
+@keyframes latido {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--color-cielo, #9af3ff) 45%, white);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--color-aqua, #00e5ff) 42%, white);
+  }
+}
+@keyframes luz {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(0, 229, 255, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fila-nueva td,
+  .fila-nueva td:first-child::before {
+    animation: none;
+  }
+}

@@ -18,7 +18,7 @@ export class AuthPage {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   register = this.route.snapshot.data['register'] === true;
-  datos = { nombre: '', correo: '', telefono: '', password: '', password_confirmation: '' };
+  datos = { nombre: '', correo: '', telefono: '', password: '', password_confirmation: '', acepta_terminos: false };
   busy = false;
   error = '';
   verClave = false;
@@ -32,7 +32,7 @@ export class AuthPage {
       else await this.auth.login(this.datos.correo, this.datos.password);
       this.datos.password = this.datos.password_confirmation = '';
       const target = this.route.snapshot.queryParamMap.get('returnUrl');
-      await this.router.navigateByUrl(target === '/pedidos' || target === '/perfil' ? target : '/perfil', { replaceUrl: true });
+      await this.router.navigateByUrl(target === '/pedidos' || target === '/perfil' || target === '/cotizar/pedido' ? target : '/perfil', { replaceUrl: true });
     } catch (error) { this.error = httpError(error); }
     finally { this.busy = false; }
   }

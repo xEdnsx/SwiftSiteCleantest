@@ -1,0 +1,26 @@
+@use '../../../styles/ssc' as *;
+
+ion-content { --background: #{$bone}; }
+.screen { @include screen(17px); padding-bottom: 32px; }
+
+.barra { display: flex; align-items: center; gap: 12px; }
+.volver { @include back-button; }
+.marca { font-family: $font-ui; font-weight: 700; font-size: 18px; }
+
+h1 { margin: 18px 0 0; @include display(34px, 40px); }
+.version { margin: 6px 0 0; font-size: 15px; color: $gris; }
+
+.cruce {
+  margin-top: 16px; display: flex; gap: 8px;
+  button { @include pill(40px, 16px); cursor: pointer; }
+}
+
+.seccion {
+  margin-top: 22px;
+  h2 { margin: 0; font-family: $font-ui; font-weight: 700; font-size: 19px; line-height: 25px; }
+  p, li { font-size: 17px; line-height: 24px; color: $ink; }
+  p { margin: 8px 0 0; }
+  ul { margin: 8px 0 0; padding-left: 22px; }
+  li { margin-top: 6px; }
+}
+.pendiente { background: #FFF4C2; border-radius: 8px; padding: 2px 6px; }

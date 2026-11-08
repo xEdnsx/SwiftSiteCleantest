@@ -1,57 +1,129 @@
 <ion-content>
   <main class="screen">
-    <h1>Mis pedidos</h1>
+    <header class="top">
+      <h1>Mis pedidos</h1>
+      <p class="sub" *ngIf="pedidos.length">
+        {{ pedidosActivos.length }} {{ pedidosActivos.length === 1 ? 'activo' : 'activos' }} · {{ pedidosHistorial.length }} {{ pedidosHistorial.length === 1 ? 'finalizado' : 'finalizados' }}
+      </p>
+    </header>
+
+    <p class="estado" role="status" *ngIf="cargando && !pedidos.length">Cargando tus pedidos…</p>
+    <p class="error" role="alert" *ngIf="error">{{ error }} <button type="button" class="link" (click)="cargar()">Reintentar</button></p>
 
     <div class="segmented" role="tablist">
-      <button type="button" role="tab" [attr.aria-selected]="tabActiva === 'activos'" [class.active]="tabActiva === 'activos'" (click)="cambiarTab('activos')">Activos</button>
-      <button type="button" role="tab" [attr.aria-selected]="tabActiva === 'historial'" [class.active]="tabActiva === 'historial'" (click)="cambiarTab('historial')">Historial</button>
+      <button type="button" role="tab" [attr.aria-selected]="tabActiva === 'activos'" [class.active]="tabActiva === 'activos'" (click)="cambiarTab('activos')">
+        Activos <span class="cuenta">{{ pedidosActivos.length }}</span>
+      </button>
+      <button type="button" role="tab" [attr.aria-selected]="tabActiva === 'historial'" [class.active]="tabActiva === 'historial'" (click)="cambiarTab('historial')">
+        Historial <span class="cuenta">{{ pedidosHistorial.length }}</span>
+      </button>
     </div>
 
     <!-- ACTIVOS -->
     <section class="lista" *ngIf="tabActiva === 'activos'">
-      <article class="pedido" *ngFor="let p of pedidosActivos">
-        <div class="fila">
-          <span class="id">Pedido {{ p.id }}</span>
-          <span class="badge" [ngClass]="badge(p.estado)">{{ p.estado }}</span>
-        </div>
-        <h2>{{ p.titulo }}</h2>
-        <div class="meta"><ssc-icon name="calendar" [size]="22" />{{ p.fecha }} · {{ p.zona }}</div>
-
-        <ng-container *ngIf="p.progreso >= 2 && p.estado !== 'Confirmado'">
-          <div class="progreso" role="img" [attr.aria-label]="'Estado: ' + p.estado.toLowerCase() + ', paso ' + p.progreso + ' de 4'">
-            <span *ngFor="let n of [1, 2, 3, 4]" [class.done]="n <= p.progreso"></span>
+      <article class="pedido" *ngFor="let p of pedidosActivos" [attr.data-estado]="badge(p.estado)">
+        <div class="cabeza">
+          <span class="tile"><ssc-icon [name]="icono(p.estado)" [size]="24" [strokeWidth]="2" /></span>
+          <div class="cabeza-txt">
+            <div class="fila"><span class="id">Pedido {{ p.id }}</span><span class="badge" [ngClass]="badge(p.estado)">{{ p.estado }}</span></div>
+            <h2>{{ p.titulo }}</h2>
           </div>
-          <div class="etapas"><span *ngFor="let e of etapas">{{ e }}</span></div>
-        </ng-container>
+        </div>
 
-        <div class="fila pie">
-          <span class="total">${{ p.total.toFixed(2) }}</span>
-          <button type="button" class="btn-detalle" *ngIf="p.estado !== 'Confirmado'">Ver detalle</button>
+        <ul class="datos">
+          <li><ssc-icon name="calendar" [size]="20" />{{ p.fecha }}</li>
+          <li><ssc-icon name="pin" [size]="20" />{{ p.zona }}</li>
+        </ul>
+
+        <ol class="etapas" [attr.aria-label]="'Estado: ' + p.estado.toLowerCase() + ', paso ' + p.progreso + ' de 4'">
+          <li *ngFor="let e of etapas; let i = index" [class.hecha]="i + 1 <= p.progreso" [class.actual]="i + 1 === p.progreso">
+            <span class="barra"></span>{{ e }}
+          </li>
+        </ol>
+
+        <div class="pie">
+          <div class="monto"><small>Total</small><span class="total">${{ p.total.toFixed(2) }}</span></div>
+          <button type="button" class="btn-detalle" (click)="verDetalle(p)">Ver detalle</button>
         </div>
       </article>
-      <p class="vacio" *ngIf="!pedidosActivos.length">No tienes pedidos activos.</p>
+
+      <div class="vacio" *ngIf="!pedidosActivos.length && !cargando && !error">
+        <span class="vacio-ico"><ssc-icon name="orders" [size]="30" /></span>
+        <strong>No tienes pedidos activos</strong>
+        <p>Cuando confirmes una cotización, la verás aquí con su avance.</p>
+        <a routerLink="/cotizar" class="btn-primario">Armar mi cotización</a>
+      </div>
     </section>
 
     <!-- HISTORIAL -->
     <section class="lista" *ngIf="tabActiva === 'historial'">
-      <article class="pedido" *ngFor="let p of pedidosHistorial">
-        <div class="fila">
-          <span class="id">Pedido {{ p.id }}</span>
-          <span class="badge finalizado">{{ p.estado }}</span>
+      <article class="pedido" *ngFor="let p of pedidosHistorial" data-estado="finalizado">
+        <div class="cabeza">
+          <span class="tile"><ssc-icon name="check" [size]="24" [strokeWidth]="2.4" /></span>
+          <div class="cabeza-txt">
+            <div class="fila"><span class="id">Pedido {{ p.id }}</span><span class="badge finalizado">{{ p.estado }}</span></div>
+            <h2>{{ p.titulo }}</h2>
+          </div>
         </div>
-        <h2>{{ p.titulo }}</h2>
-        <div class="meta"><ssc-icon name="calendar" [size]="22" />{{ p.fecha }} · {{ p.zona }}</div>
-        <div class="total solo">${{ p.total.toFixed(2) }}</div>
+
+        <ul class="datos">
+          <li><ssc-icon name="calendar" [size]="20" />{{ p.fecha }}</li>
+          <li><ssc-icon name="pin" [size]="20" />{{ p.zona }}</li>
+        </ul>
+
+        <div class="pie">
+          <div class="monto"><small>Total</small><span class="total">${{ p.total.toFixed(2) }}</span></div>
+          <button type="button" class="btn-detalle" (click)="verDetalle(p)">Ver detalle</button>
+        </div>
 
         <div class="acciones">
-          <a *ngIf="!p.valorado" routerLink="/valorar" class="btn-valorar"><ssc-icon name="star" [size]="22" />Valorar</a>
-          <p *ngIf="p.valorado" class="valoracion">
-            <span class="estrellas"><ssc-icon *ngFor="let n of [1, 2, 3, 4, 5]" name="star" [size]="16" [filled]="true" [strokeWidth]="1.6" /></span>
-            Tu valoración <span class="pub">Publicada</span>
+          <a *ngIf="!valoracionDe(p)" [routerLink]="['/valorar', idNumerico(p)]" class="btn-valorar"><ssc-icon name="star" [size]="20" />Valorar</a>
+          <p *ngIf="valoracionDe(p) as v" class="valoracion">
+            <span class="estrellas" role="img" [attr.aria-label]="v.estrellas + ' de 5 estrellas'"><ssc-icon *ngFor="let n of [1, 2, 3, 4, 5]" name="star" [size]="16" [filled]="n <= v.estrellas" [strokeWidth]="1.6" /></span>
+            Tu valoración
           </p>
-          <a href="#" class="problema" (click)="$event.preventDefault()">Reportar problema</a>
+          <a [routerLink]="['/reportar', idNumerico(p)]" class="problema">{{ textoReporte(p) }}</a>
         </div>
       </article>
+
+      <div class="vacio" *ngIf="!pedidosHistorial.length && !cargando && !error">
+        <span class="vacio-ico"><ssc-icon name="star" [size]="30" /></span>
+        <strong>Todavía no tienes pedidos finalizados</strong>
+        <p>Aquí quedan tus servicios terminados, para que los valores.</p>
+      </div>
     </section>
   </main>
+
+  <!-- Detalle del pedido -->
+  <div *ngIf="detalle" class="velo" (click)="cerrarDetalle()"></div>
+  <section *ngIf="detalle as d" class="sheet" role="dialog" aria-modal="true" aria-labelledby="det-titulo">
+    <span class="asa"></span>
+    <div class="det-cab">
+      <div>
+        <small>Pedido {{ vistaDe(d).id }}</small>
+        <h2 id="det-titulo">{{ vistaDe(d).titulo }}</h2>
+      </div>
+      <span class="badge" [ngClass]="badge(d.estado)">{{ d.estado }}</span>
+    </div>
+
+    <ul class="det-lineas">
+      <li *ngFor="let l of d.lineas">
+        <span class="det-nombre">{{ nombreLinea(l) }}<small>{{ l.cantidad }} × ${{ numero(l.precio_unitario) }}</small></span>
+        <span>${{ numero(l.subtotal) }}</span>
+      </li>
+    </ul>
+
+    <div class="det-resumen">
+      <div><span>Subtotal</span><span>${{ numero(d.subtotal) }}</span></div>
+      <div><span>Recargo por zona</span><span>${{ numero(d.recargo_zona) }}</span></div>
+      <div class="det-total"><span>Total</span><strong>${{ numero(d.total) }}</strong></div>
+    </div>
+
+    <ul class="datos det-datos">
+      <li><ssc-icon name="calendar" [size]="20" />{{ vistaDe(d).fecha }}</li>
+      <li><ssc-icon name="home" [size]="20" />{{ d.direccion }}</li>
+      <li *ngIf="d.zona"><ssc-icon name="pin" [size]="20" />Zona: {{ d.zona.nombre }}</li>
+    </ul>
+    <button type="button" class="btn-detalle cerrar" (click)="cerrarDetalle()">Cerrar</button>
+  </section>
 </ion-content>

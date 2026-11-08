@@ -24,6 +24,8 @@ class Usuario extends Authenticatable
         'telefono',
         'correo',
         'password_hash',
+        'terminos_version',
+        'terminos_aceptados_en',
     ];
 
     protected $hidden = ['password_hash'];
@@ -36,17 +38,18 @@ class Usuario extends Authenticatable
     {
         return [
             'password_hash' => 'hashed',
+            'terminos_aceptados_en' => 'datetime',
         ];
     }
 
     public function getEmailForPasswordReset(): string
     {
-        return $this->correo;
+        return (string) $this->correo;
     }
 
     public function routeNotificationForMail($notification = null): string
     {
-        return $this->correo;
+        return (string) $this->correo;
     }
 
     public function rol(): BelongsTo

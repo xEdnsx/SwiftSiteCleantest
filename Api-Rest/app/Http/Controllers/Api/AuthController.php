@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
@@ -19,8 +20,10 @@ class AuthController extends Controller
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:120'],
             'telefono' => ['sometimes', 'nullable', 'string', 'max:25'],
-            'correo' => ['required', 'string', 'email', 'max:150', 'unique:usuarios,correo'],
+            'correo' => ['required', 'string', 'email', 'max:150'],
             'password' => ['required', 'string', 'min:8', 'max:72', 'confirmed'],
+            // Consentimiento informado: sin aceptar los términos y la privacidad no se crea la cuenta.
+            'acepta_terminos' => ['required', 'accepted'],
             'device_name' => ['sometimes', 'required', 'string', 'max:100'],
             'id_rol' => ['prohibited'],
             'rol' => ['prohibited'],
@@ -29,13 +32,26 @@ class AuthController extends Controller
 
         return DB::transaction(function () use ($data): JsonResponse {
             $rol = Rol::firstOrCreate(['nombre_rol' => 'Cliente']);
-            $usuario = Usuario::create([
-                'id_rol' => $rol->getKey(),
+            $datosCuenta = [
                 'nombre' => $data['nombre'],
                 'telefono' => $data['telefono'] ?? null,
-                'correo' => $data['correo'],
                 'password_hash' => $data['password'],
-            ]);
+                'terminos_version' => config('legal.version'),
+                'terminos_aceptados_en' => now(),
+            ];
+
+            // Un cliente agregado desde el panel aún no tiene contraseña: al crear su cuenta con ese correo la reclama.
+            $existente = Usuario::where('correo', $data['correo'])->lockForUpdate()->first();
+            if ($existente) {
+                if ($existente->password_hash !== null || $existente->id_rol !== $rol->getKey()) {
+                    throw ValidationException::withMessages(['correo' => trans('validation.unique', ['attribute' => 'correo'])]);
+                }
+                $existente->update(array_replace($datosCuenta, ['telefono' => $datosCuenta['telefono'] ?? $existente->telefono]));
+
+                return $this->tokenResponse($existente, $data['device_name'] ?? 'api', 201);
+            }
+
+            $usuario = Usuario::create($datosCuenta + ['id_rol' => $rol->getKey(), 'correo' => $data['correo']]);
 
             return $this->tokenResponse($usuario, $data['device_name'] ?? 'api', 201);
         });
