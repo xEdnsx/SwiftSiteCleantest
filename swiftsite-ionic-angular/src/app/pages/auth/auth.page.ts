@@ -22,14 +22,22 @@ export class AuthPage {
   busy = false;
   error = '';
   verClave = false;
-  ionViewDidLeave(): void { this.datos.password = this.datos.password_confirmation = ''; }
+  verificationRequired = false;
+  claimToken = '';
+  ionViewDidLeave(): void {
+    this.datos.password = this.datos.password_confirmation = '';
+    this.claimToken = '';
+    this.verificationRequired = false;
+  }
   async submit(): Promise<void> {
     if (this.busy) return;
     this.busy = true;
     this.error = '';
     try {
-      if (this.register) await this.auth.register(this.datos);
-      else await this.auth.login(this.datos.correo, this.datos.password);
+      if (this.register) {
+        const registered = await this.auth.register({ ...this.datos, ...(this.claimToken.trim() ? { claim_token: this.claimToken.trim() } : {}) });
+        if (!registered) { this.verificationRequired = true; return; }
+      } else await this.auth.login(this.datos.correo, this.datos.password);
       this.datos.password = this.datos.password_confirmation = '';
       const target = this.route.snapshot.queryParamMap.get('returnUrl');
       await this.router.navigateByUrl(target === '/pedidos' || target === '/perfil' || target === '/cotizar/pedido' ? target : '/perfil', { replaceUrl: true });

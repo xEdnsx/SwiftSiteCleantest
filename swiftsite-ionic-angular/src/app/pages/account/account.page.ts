@@ -6,6 +6,8 @@ import { IonContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
 import { PerfilService } from '../../core/perfil.service';
 import { PedidosService } from '../../core/pedidos.service';
+import { ReportesService } from '../../core/reportes.service';
+import { ValoracionesService } from '../../core/valoraciones.service';
 import { httpError } from '../../core/api.interceptor';
 import { IconComponent } from '../../shared/icon.component';
 import { whatsappMensaje, whatsappUrl } from '../../data';
@@ -29,6 +31,8 @@ export class AccountPage {
   readonly auth = inject(AuthService);
   private perfil = inject(PerfilService);
   private pedidosApi = inject(PedidosService);
+  private reportesApi = inject(ReportesService);
+  private valoracionesApi = inject(ValoracionesService);
   private router = inject(Router);
 
   readonly version = LEGAL_VERSION;
@@ -42,9 +46,8 @@ export class AccountPage {
   stats: EstadisticasPerfil | null = null;
   direcciones: string[] = [];
   oscuro = temaActual() === 'oscuro';
-  /** Aún no hay valoraciones ni reportes conectados a la API: se muestran como "—". */
-  readonly valoraciones: number | null = null;
-  readonly reportes: number | null = null;
+  valoraciones: number | null = null;
+  reportes: number | null = null;
   busy = false;
   error = '';
   ok = '';
@@ -67,9 +70,24 @@ export class AccountPage {
   ionViewWillEnter(): void {
     this.oscuro = temaActual() === 'oscuro';
     this.cerrarVista();
+    this.stats = null;
+    this.direcciones = [];
+    this.valoraciones = this.reportes = null;
+    const owner = this.usuario?.id_usuario;
     this.pedidosApi.mios().subscribe({
-      next: pedidos => { this.stats = estadisticas(pedidos); this.direcciones = direccionesUsadas(pedidos); },
+      next: pedidos => {
+        if (this.usuario?.id_usuario !== owner) return;
+        this.stats = estadisticas(pedidos); this.direcciones = direccionesUsadas(pedidos);
+      },
       error: () => { this.stats = null; this.direcciones = []; },
+    });
+    this.reportesApi.mios().subscribe({
+      next: reportes => { if (this.usuario?.id_usuario === owner) this.reportes = reportes.length; },
+      error: () => { this.reportes = null; },
+    });
+    this.valoracionesApi.mias().subscribe({
+      next: valoraciones => { if (this.usuario?.id_usuario === owner) this.valoraciones = valoraciones.length; },
+      error: () => { this.valoraciones = null; },
     });
   }
 

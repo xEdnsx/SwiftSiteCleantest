@@ -45,6 +45,12 @@
         </label>
       </ng-container>
 
+      <ng-container *ngIf="register && verificationRequired">
+        <p role="status">Revisa tu correo. Para activar la cuenta existente, copia el código recibido. Caduca en 30 minutos. Tus datos y pedidos no cambian hasta verificarlo.</p>
+        <label for="claim-token">Código de activación</label>
+        <textarea id="claim-token" class="field" name="claim_token" [(ngModel)]="claimToken" maxlength="4096" autocomplete="off" spellcheck="false"></textarea>
+        <p>Si todavía no llega, espera un minuto y vuelve a pulsar Registrarme con el código vacío para reenviarlo.</p>
+      </ng-container>
       <p *ngIf="error" role="alert" class="error">{{ error }}</p>
 
       <button type="submit" class="btn-primary" [disabled]="busy || form.invalid">

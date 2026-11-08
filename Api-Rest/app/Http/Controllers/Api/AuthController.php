@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ReclamarCuenta;
 use App\Models\Rol;
 use App\Models\Usuario;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -28,6 +33,7 @@ class AuthController extends Controller
             'id_rol' => ['prohibited'],
             'rol' => ['prohibited'],
             'password_hash' => ['prohibited'],
+            'claim_token' => ['sometimes', 'required', 'string', 'max:4096'],
         ]);
 
         return DB::transaction(function () use ($data): JsonResponse {
@@ -40,17 +46,25 @@ class AuthController extends Controller
                 'terminos_aceptados_en' => now(),
             ];
 
-            // Un cliente agregado desde el panel aún no tiene contraseña: al crear su cuenta con ese correo la reclama.
+            // Tener el correo no demuestra su propiedad: no cambiar la cuenta hasta verificar el código.
             $existente = Usuario::where('correo', $data['correo'])->lockForUpdate()->first();
             if ($existente) {
                 if ($existente->password_hash !== null || $existente->id_rol !== $rol->getKey()) {
                     throw ValidationException::withMessages(['correo' => trans('validation.unique', ['attribute' => 'correo'])]);
                 }
+                if (! isset($data['claim_token'])) {
+                    return $this->solicitarVerificacion($existente);
+                }
+                $this->verificarReclamacion($existente, $data['claim_token']);
+                $existente->tokens()->delete();
                 $existente->update(array_replace($datosCuenta, ['telefono' => $datosCuenta['telefono'] ?? $existente->telefono]));
 
                 return $this->tokenResponse($existente, $data['device_name'] ?? 'api', 201);
             }
 
+            if (isset($data['claim_token'])) {
+                throw ValidationException::withMessages(['claim_token' => 'El codigo no es valido o ha caducado.']);
+            }
             $usuario = Usuario::create($datosCuenta + ['id_rol' => $rol->getKey(), 'correo' => $data['correo']]);
 
             return $this->tokenResponse($usuario, $data['device_name'] ?? 'api', 201);
@@ -85,6 +99,45 @@ class AuthController extends Controller
         }
 
         return $this->tokenResponse($usuario, $data['device_name'] ?? 'api');
+    }
+
+    private function solicitarVerificacion(Usuario $usuario): JsonResponse
+    {
+        // El transporte log guardaría el secreto en disco: exigir correo real fuera de las pruebas.
+        abort_if(in_array(config('mail.default'), ['log', 'array'], true),
+            503, 'La activacion por correo no esta disponible. Contacta con soporte.');
+        $key = 'claim:'.hash('sha256', (string) $usuario->correo);
+        if (! RateLimiter::tooManyAttempts($key, 1)) {
+            RateLimiter::hit($key, 60);
+            $codigo = Crypt::encryptString(json_encode([
+                'id' => $usuario->getKey(),
+                'correo' => hash('sha256', $usuario->correo),
+                'expires' => now()->addMinutes(30)->getTimestamp(),
+            ], JSON_THROW_ON_ERROR));
+            Mail::to($usuario->correo)->send(new ReclamarCuenta($codigo));
+        }
+
+        return response()->json([
+            'verification_required' => true,
+            'message' => 'Revisa tu correo e introduce el codigo de activacion. Si ya lo solicitaste, espera un minuto antes de reenviarlo.',
+        ], 202)->header('Cache-Control', 'no-store');
+    }
+
+    private function verificarReclamacion(Usuario $usuario, string $codigo): void
+    {
+        try {
+            $datos = json_decode(Crypt::decryptString($codigo), true, 512, JSON_THROW_ON_ERROR);
+            $valido = is_array($datos)
+                && ($datos['id'] ?? null) === $usuario->getKey()
+                && is_int($datos['expires'] ?? null)
+                && $datos['expires'] > now()->getTimestamp()
+                && hash_equals(hash('sha256', $usuario->correo), (string) ($datos['correo'] ?? ''));
+        } catch (DecryptException|\JsonException) {
+            $valido = false;
+        }
+        if (! $valido) {
+            throw ValidationException::withMessages(['claim_token' => 'El codigo no es valido o ha caducado.']);
+        }
     }
 
     public function me(Request $request): JsonResponse

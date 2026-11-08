@@ -30,6 +30,19 @@ class PresentacionCatalogoTest extends TestCase
         (require glob(database_path('migrations/*_add_presentacion_to_catalogo.php'))[0])->up();
     }
 
+    public function test_tariff_seeder_preserves_admin_prices_hidden_tariffs_and_custom_services(): void
+    {
+        $this->migrar();
+        $this->seed(CategoriasServicioSeeder::class);
+        $this->seed(TarifasItemsSeeder::class);
+        $tarifa = DB::table('tarifas_items')->first();
+        DB::table('tarifas_items')->where('id_tarifa', $tarifa->id_tarifa)->update(['precio_unitario' => '123.45', 'activo' => false]);
+        DB::table('tarifas_items')->insert(['id_categoria' => $tarifa->id_categoria, 'tipo_item' => 'Personalizada', 'material' => null, 'precio_unitario' => 55, 'activo' => true]);
+        $before = DB::table('tarifas_items')->orderBy('id_tarifa')->get()->toJson();
+        $this->seed(TarifasItemsSeeder::class);
+        $this->assertSame($before, DB::table('tarifas_items')->orderBy('id_tarifa')->get()->toJson());
+    }
+
     private function admin(): void
     {
         $rol = Rol::create(['nombre_rol' => 'Administrador']);

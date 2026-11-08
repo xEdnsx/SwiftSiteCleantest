@@ -61,7 +61,7 @@ export function cuerpoCliente(form: FormCliente) {
 export function avisoDeAcceso(form: FormCliente, yaTieneCuenta = false): string {
   const correo = form.correo.trim()
   if (yaTieneCuenta) return 'Esta persona ya tiene cuenta en la app. Su correo es con el que entra: si lo cambias, tendrá que usar el nuevo.'
-  if (correo) return 'Todavía no puede entrar a la app. Cuando cree su cuenta con este mismo correo, quedará ligada a este perfil.'
+  if (correo) return 'Todavía no puede entrar a la app. Cuando cree su cuenta con este mismo correo y lo verifique con el código recibido, quedará ligada a este perfil.'
   if (form.telefono.trim()) return 'Sin correo no podrá entrar a la app. Cuando quiera pedir, dile que cree su cuenta desde la app (puede usar este teléfono).'
   return ''
 }

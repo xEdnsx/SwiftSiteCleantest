@@ -62,7 +62,8 @@ test('Son 44 zonas y ninguna repite un distrito dentro de su departamento', () =
 
 test('Las zonas del seeder de Laravel coinciden con las que la app sabe describir', { skip: !existsSync(new URL('../../Api-Rest/database/seeders/ZonasCoberturaSeeder.php', import.meta.url)) }, () => {
   const php = readFileSync(new URL('../../Api-Rest/database/seeders/ZonasCoberturaSeeder.php', import.meta.url), 'utf8');
-  const cuerpo = php.slice(php.indexOf('$niveles = ['), php.indexOf('$vigentes'));
+  const cuerpo = php.match(/\$niveles\s*=\s*\[([\s\S]*?)\n\s*\];/)?.[1];
+  assert.ok(cuerpo, 'El seeder declara los niveles de zonas');
   const nombres = [...cuerpo.matchAll(/'([^']+)'/g)].map((m) => m[1]);
   assert.equal(nombres.length, 44);
   assert.equal(new Set(nombres).size, 44);

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * y la app la separa por departamento para que la persona elija primero dónde vive.
  *
  * Niveles:  $0 gratis · $3 cercana · $5 · $8 · $12 lejana.
- * Se puede volver a correr sin duplicar. Las zonas anteriores que ya no están en la lista se desactivan (no se borran).
+ * Solo inicializa zonas inexistentes: conserva recargos y estados definidos por administración.
  */
 class ZonasCoberturaSeeder extends Seeder
 {
@@ -35,19 +35,13 @@ class ZonasCoberturaSeeder extends Seeder
             ],
         ];
 
-        $vigentes = [];
-
         foreach ($niveles as $recargo => $nombres) {
             foreach ($nombres as $nombre) {
-                DB::table('zonas_cobertura')->updateOrInsert(
-                    ['nombre' => $nombre],
-                    ['recargo' => $recargo, 'activo' => 1]
-                );
-                $vigentes[] = $nombre;
+                if (! DB::table('zonas_cobertura')->where('nombre', $nombre)->exists()) {
+                    DB::table('zonas_cobertura')->insert(['nombre' => $nombre, 'recargo' => $recargo, 'activo' => 1]);
+                }
             }
         }
 
-        // Zonas de versiones anteriores (Soyapango, Mejicanos…): se desactivan en lugar de borrarse.
-        DB::table('zonas_cobertura')->whereNotIn('nombre', $vigentes)->update(['activo' => 0]);
     }
 }

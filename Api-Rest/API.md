@@ -42,10 +42,20 @@ Se utiliza `Usuario`, con `correo` y `password_hash`, para emitir tokens Bearer 
 
 | Metodo | Ruta | Descripcion |
 | --- | --- | --- |
-| POST | `/register` | Registro publico, siempre como Cliente; devuelve usuario y token (201). Si el panel ya agrego a esa persona como cliente (mismo correo y sin contrasena), la cuenta se reclama en lugar de dar error de correo repetido |
+| POST | `/register` | Registro publico, siempre como Cliente; cuenta nueva: usuario y token (201). Cuenta de Cliente existente sin contrasena: verificacion por correo (202), sin acceso ni cambios hasta confirmar el codigo |
 | POST | `/login` | Valida correo y password; devuelve usuario y token (200) |
 | GET | `/me` o `/user` | Devuelve el usuario autenticado y su rol (200) |
 | POST | `/logout` | Revoca solo el token utilizado en la solicitud (204) |
+
+### Activacion segura de una cuenta agregada por el panel
+
+Para una cuenta Cliente existente sin contrasena, el primer `POST /register` envia un codigo cifrado al correo registrado. Devuelve `202` con `verification_required: true`, sin usuario ni token de Sanctum. No cambia nombre, contrasena, telefono ni pedidos.
+
+La persona copia el codigo del correo y repite el formulario de registro agregando `claim_token`. Laravel verifica integridad, cuenta, correo y caducidad de 30 minutos, bajo bloqueo transaccional. Solo entonces configura la contrasena hasheada y devuelve 201. El codigo no puede volver a activar una cuenta ya configurada; los tokens anteriores se revocan. Codigos falsos, caducados o correspondientes a otra cuenta devuelven 422. Las cuentas Administrador y las cuentas con contrasena nunca se reclaman por este mecanismo.
+
+El envio se limita por correo a una vez por minuto, ademas del limite general de registro. El codigo solo se entrega por correo; no se devuelve en JSON ni se registra en logs. Configurar un transporte de correo real en el entorno (`MAIL_MAILER`, host, puerto y credenciales propias). Con transportes `log` o `array`, la activacion falla de forma segura con 503 y conserva la cuenta. No modificar ni publicar el `.env` para compartir credenciales. En las pruebas se usa un fake o un servidor SMTP local aislado.
+
+Los seeders de zonas y tarifas ahora solo crean entradas faltantes: volver a ejecutarlos no cambia recargos, precios ni visibilidad de registros existentes, incluidos los personalizados o antiguos.
 
 Ejemplo de cuerpo para `/api/register`:
 

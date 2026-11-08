@@ -14,8 +14,8 @@ use RuntimeException;
  *   - material  = variante que cambia el precio (segunda pregunta): material o tamaño.
  *   - Los extras llevan el prefijo "Extra: " y se cobran por cada unidad.
  *
- * Puedes volver a correrlo sin duplicar nada: actualiza lo que existe e inserta lo que falta.
- * Las tarifas que ya no están en este catálogo se desactivan (no se borran, por si un pedido las usa).
+ * Inicializa solo las tarifas que faltan; conserva precios y visibilidad administrativos.
+ * Las tarifas antiguas y personalizadas no se modifican ni se desactivan.
  */
 class TarifasItemsSeeder extends Seeder
 {
@@ -34,7 +34,7 @@ class TarifasItemsSeeder extends Seeder
         // Sillas: el precio base depende de qué se limpia; el material lo ajusta.
         foreach (['Solo asiento' => 5.00, 'Asiento y respaldo' => 7.50] as $alcance => $base) {
             foreach (['Tela', 'Malla', 'Cuero'] as $material) {
-                $tarifas[] = ['Sillas', "Silla · " . mb_strtolower($alcance), $material, $this->conMaterial($base, $material)];
+                $tarifas[] = ['Sillas', 'Silla · '.mb_strtolower($alcance), $material, $this->conMaterial($base, $material)];
             }
         }
 
@@ -74,8 +74,6 @@ class TarifasItemsSeeder extends Seeder
         $tarifas[] = ['Colchones', 'Extra: manchas difíciles', null, 5.00];
         $tarifas[] = ['Baños', 'Extra: quitar sarro', null, 8.00];
 
-        $vigentes = [];
-
         foreach ($tarifas as [$categoria, $tipo, $material, $precio]) {
             $idCategoria = DB::table('categorias_servicio')
                 ->where('nombre', $categoria)
@@ -91,18 +89,10 @@ class TarifasItemsSeeder extends Seeder
                 'material' => $material,
             ];
 
-            DB::table('tarifas_items')->updateOrInsert($clave, [
-                'precio_unitario' => $precio,
-                'activo' => 1,
-            ]);
-
-            $vigentes[] = DB::table('tarifas_items')->where($clave)->value('id_tarifa');
+            if (! DB::table('tarifas_items')->where($clave)->exists()) {
+                DB::table('tarifas_items')->insert($clave + ['precio_unitario' => $precio, 'activo' => 1]);
+            }
         }
-
-        // Las tarifas antiguas que ya no forman parte del catálogo se desactivan.
-        DB::table('tarifas_items')
-            ->whereNotIn('id_tarifa', $vigentes)
-            ->update(['activo' => 0]);
 
         // Textos de presentación (detalle, descripción) de lo que acabamos de crear.
         PresentacionCatalogo::aplicar();
