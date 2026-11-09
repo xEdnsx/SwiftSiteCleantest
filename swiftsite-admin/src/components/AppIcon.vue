@@ -16,6 +16,7 @@ const icons = {
   eyeOff: '<path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A9.8 9.8 0 0 1 12 5c5 0 9 4.5 10 7a12 12 0 0 1-2.6 3.7M6.6 6.6A12 12 0 0 0 2 12c1 2.5 5 7 10 7a9.7 9.7 0 0 0 4.2-1"/>',
   flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  shield: '<path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
 } as const
 
 export type IconName = keyof typeof icons
