@@ -1,0 +1,59 @@
+<ion-content>
+  <main class="screen">
+    <a routerLink="/login" class="back" aria-label="Volver al inicio de sesión">
+      <ssc-icon name="back" [size]="22" />
+    </a>
+
+    <!-- Listo -->
+    <ng-container *ngIf="done; else pasos">
+      <div class="logo ok" aria-hidden="true"><ssc-icon name="check" [size]="34" [strokeWidth]="2.4" /></div>
+      <h1>Contraseña actualizada</h1>
+      <p class="lead" role="status">Ya puedes entrar con tu contraseña nueva.</p>
+      <a routerLink="/login" class="btn-primary go">Ir a iniciar sesión</a>
+    </ng-container>
+
+    <!-- Pasos -->
+    <ng-template #pasos>
+      <div class="logo" aria-hidden="true"><ssc-icon name="lock" [size]="32" /></div>
+      <h1>Recupera tu contraseña</h1>
+      <p class="lead">
+        {{ sent ? 'Escribe el código que te enviamos y elige una contraseña nueva.' : 'Escribe tu correo y te enviamos un código. Caduca en 30 minutos.' }}
+      </p>
+
+      <div class="progress" role="group" [attr.aria-label]="'Paso ' + (sent ? 2 : 1) + ' de 2'">
+        <span class="bar on"></span>
+        <span class="bar" [class.on]="sent"></span>
+        <span class="count">Paso {{ sent ? 2 : 1 }} de 2</span>
+      </div>
+
+      <form #form="ngForm" (ngSubmit)="send(sent)">
+        <label for="email">Correo</label>
+        <input id="email" class="field" type="email" name="correo" [(ngModel)]="correo" required email maxlength="150" autocomplete="username" placeholder="tucorreo@ejemplo.com">
+
+        <ng-container *ngIf="sent">
+          <label for="code">Código del correo</label>
+          <input id="code" class="field" name="token" [(ngModel)]="token" required maxlength="256" autocomplete="one-time-code" spellcheck="false" autocapitalize="off" placeholder="Pega aquí el código">
+
+          <label for="password">Nueva contraseña</label>
+          <input id="password" class="field" type="password" name="password" [(ngModel)]="password" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+
+          <label for="confirmation">Confirmar contraseña</label>
+          <input id="confirmation" class="field" type="password" name="confirmation" [(ngModel)]="confirmation" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="Repite la contraseña">
+        </ng-container>
+
+        <p *ngIf="message" role="status" class="info">
+          <ssc-icon name="check" [size]="18" />
+          <span>{{ message }}</span>
+        </p>
+        <p *ngIf="error" role="alert" class="error">{{ error }}</p>
+
+        <button type="submit" class="btn-primary" [disabled]="busy || form.invalid">
+          {{ busy ? 'Procesando...' : sent ? 'Guardar contraseña' : 'Enviar código' }}
+        </button>
+        <button *ngIf="sent" type="button" class="btn-secondary resend" [disabled]="busy || !correo" (click)="send(false)">Reenviar código</button>
+      </form>
+
+      <a routerLink="/login" class="btn-secondary back-link">Volver al inicio de sesión</a>
+    </ng-template>
+  </main>
+</ion-content>

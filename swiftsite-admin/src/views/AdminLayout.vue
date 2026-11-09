@@ -66,7 +66,10 @@ async function logout() {
             :aria-label="`${item.globo()} pendientes`"
           >{{ item.globo() }}</span>
         </RouterLink>
-        <RouterLink v-if="auth.usuario?.id_usuario === 1 && auth.usuario?.rol.nombre_rol === 'Administrador'" to="/administradores" class="block rounded-xl px-4 py-3 text-menu hover:bg-white/10">Administradores</RouterLink>
+        <RouterLink v-if="auth.usuario?.id_usuario === 1 && auth.usuario?.rol.nombre_rol === 'Administrador'" to="/administradores" class="h-12 flex items-center gap-3.5 px-4 rounded-[14px] text-[17px] transition-colors" :class="isActive(['/administradores']) ? 'bg-gota text-white font-semibold' : 'text-menu font-medium hover:bg-white/10'">
+          <AppIcon name="shield" :size="22" />
+          Administradores
+        </RouterLink>
       </nav>
 
       <div class="mt-auto">
