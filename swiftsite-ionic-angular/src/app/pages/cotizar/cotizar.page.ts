@@ -11,6 +11,7 @@ import { ListaCotizacionService } from '../../core/lista-cotizacion.service';
 import { PedidosService } from '../../core/pedidos.service';
 import { httpError } from '../../core/api.interceptor';
 import { LineaLista, detalleLinea, dinero, importe, itemsApi, subtotalLocal, tituloLinea } from '../quote/calculadora';
+import { PASOS_PEDIDO, numeroDePaso } from '../quote/pasos';
 import { ZonaInfo, infoZona } from '../quote/zonas';
 import { fechaISO, franjaDe } from '../pedidos/pedidos';
 import { DIRECCION_EJEMPLO, DIRECCION_MAX, EstadoDireccion, estadoDireccion, normalizarDireccion } from './direccion';
@@ -37,6 +38,10 @@ export class CotizarPage {
   private router = inject(Router);
 
   readonly totalPasos = 2;
+  /** Los pasos de todo el pedido (los dos primeros se hicieron en «Cotizar»). */
+  readonly pasosPedido = PASOS_PEDIDO;
+  /** Número de paso del pedido completo (3 = Agenda, 4 = Resumen). */
+  get numeroPaso(): number { return numeroDePaso(this.paso); }
   paso = 1;
 
   readonly dinero = dinero;

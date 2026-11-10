@@ -5,15 +5,17 @@
       <a *ngIf="paso === 1" routerLink="/cotizar" [queryParams]="{ vista: 'lista' }" class="back" aria-label="Volver a mi lista"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></a>
       <button *ngIf="paso > 1" type="button" class="back" aria-label="Volver" (click)="anterior()"><ssc-icon name="back" [size]="22" [strokeWidth]="2.2" /></button>
       <div>
-        <div class="step-label">Tu pedido · Paso {{ paso }} de {{ totalPasos }}</div>
+        <div class="step-label">Tu pedido · Paso {{ numeroPaso }} de {{ pasosPedido.length }}</div>
         <h1 *ngIf="paso === 1">¿Dónde y cuándo?</h1>
         <h1 *ngIf="paso === 2">Tu resumen</h1>
       </div>
     </header>
 
-    <div class="progress" role="img" [attr.aria-label]="'Paso ' + paso + ' de ' + totalPasos">
-      <span *ngFor="let n of [1, 2]" [class.done]="n <= paso"></span>
-    </div>
+    <ol class="progreso" aria-label="Pasos del pedido">
+      <li *ngFor="let p of pasosPedido; let i = index" [class.hecho]="i + 1 < numeroPaso" [class.actual]="i + 1 === numeroPaso" [attr.aria-current]="i + 1 === numeroPaso ? 'step' : null">
+        <span class="barra"></span>{{ p }}
+      </li>
+    </ol>
 
     <p *ngIf="cargando" role="status" class="nota">Cargando...</p>
 
