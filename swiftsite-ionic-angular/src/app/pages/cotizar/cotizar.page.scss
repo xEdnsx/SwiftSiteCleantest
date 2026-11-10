@@ -10,12 +10,7 @@ ion-content { --background: #{$bone}; }
 h1 { margin: 0; @include display(31px, 34px); }
 h2 { margin: 22px 0 0; @include display(21px); letter-spacing: -0.02em; }
 
-.progress {
-  margin-top: 14px;
-  display: flex;
-  gap: 7px;
-  span { flex: 1; height: 10px; border: 2px solid $borde; border-radius: 999px; background: $superficie; &.done { background: $aqua; } }
-}
+.progreso { @include progreso-pasos(4); }
 
 // ----- Controles compartidos -----
 .pill { @include pill(); }

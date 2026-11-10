@@ -14,6 +14,7 @@ import {
   CANTIDAD_MAX, CANTIDAD_MIN, ConfigCategoria, Estructura, LineaLista, Tipo,
   acotarCantidad, configDe, detalleLinea, dinero, estiloDeTipos, estructura, iconoValido, importe, itemsApi, nombreExtra, normalizar, precio, subtotalLocal, tituloLinea, unitario,
 } from './calculadora';
+import { PASOS_PEDIDO } from './pasos';
 import { Departamento, ZonaInfo, agruparPorDepartamento, infoZona, listaDistritos, zonasVigentes } from './zonas';
 
 type Vista = 'categorias' | 'detalle' | 'lista';
@@ -42,7 +43,7 @@ export class QuotePage {
   readonly asesorUrl = whatsappUrl();
 
   /** Pasos que ve la persona arriba; el 3.º (agenda) ocurre en la pantalla de pedido. */
-  readonly pasos = ['Elige', 'Zona y total', 'Agenda'];
+  readonly pasos = PASOS_PEDIDO;
   vista: Vista = 'categorias';
   categorias: Categoria[] = [];
   private tarifas: Tarifa[] = [];
