@@ -6,7 +6,6 @@ El trabajo diario se describe en [CONTRIBUTING.md](../CONTRIBUTING.md). Este doc
 
 No existía un repositorio Git en la raíz ni archivos/carpetas `.git` internos en los tres proyectos. La inspección recorrió el código y las configuraciones y excluyó dependencias y salidas generadas. Por ello se puede inicializar un único repositorio local sin convertir proyectos internos en submódulos ni perder historial existente.
 
-La inicialización local utiliza `git init -b main`. No crea commits, no agrega archivos al índice y no configura un remoto. El resultado verificado se registra en [GITHUB_PREPARACION.md](../GITHUB_PREPARACION.md).
 
 ## Si en otra copia aparecen repositorios internos
 

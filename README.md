@@ -20,7 +20,7 @@ Los frontends se comunican con Laravel mediante HTTP/JSON. Solo Laravel accede a
 ├── .gitattributes
 ├── README.md
 ├── CONTRIBUTING.md
-└── GITHUB_PREPARACION.md
+└── SwiftSite Clean.bat
 ```
 
 ## Requisitos
@@ -37,14 +37,14 @@ Las versiones concretas se conservan en `composer.lock` y los tres `package-lock
 
 ## Obtener el proyecto
 
-Cuando el responsable cree el repositorio **privado** y conceda acceso al equipo:
+Clona el repositorio con una cuenta que tenga acceso:
 
 ```bash
-git clone <URL_PRIVADA_DEL_REPOSITORIO> swiftsite-clean
+git clone https://github.com/xEdnsx/SwiftSiteCleantest.git swiftsite-clean
 cd swiftsite-clean
 ```
 
-El nombre local puede ser diferente; los proyectos no dependen de una ruta de usuario específica. Esta preparación no configura ningún remoto ni publica contenido.
+El nombre local puede ser diferente; los proyectos no dependen de una ruta de usuario específica. El remoto del repositorio clonado se llama `origin`.
 
 ## Instalar Laravel
 
@@ -66,7 +66,7 @@ composer check-platform-reqs
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Ejecutar seeders al inicializar la base nueva. Los seeders existentes actualizan datos coincidentes, por lo que no deben repetirse sobre una base con precios o estados personalizados sin revisar sus efectos. No se usa `migrate:fresh`.
+Ejecutar seeders al inicializar la base nueva. Los seeders de zonas y tarifas insertan datos faltantes conservando los precios y estados administrativos existentes. No se usa `migrate:fresh`.
 
 Verificar `http://127.0.0.1:8000/api/prueba` y `/api/categorias`. Los seeders crean roles y catálogos, **no una contraseña administrativa compartida**. Cada entorno debe aprovisionar su administrador mediante el proceso de confianza descrito en [configuración local](docs/CONFIGURACION_LOCAL.md).
 
@@ -104,7 +104,7 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Antes de iniciar, comprobar `src/environments/environment.ts`: `apiUrl` debe apuntar al backend local. Abrir `http://localhost:8100/#/inicio`.
+Antes de iniciar, comprobar `src/environments/environment.ts`: `apiUrl` debe apuntar al backend local. Abrir `http://localhost:8100/inicio`.
 
 El script real es `ng serve --port 8100 --open=false`. No ejecuta `ionic serve` recursivamente ni abre ventanas automáticamente. No es necesario instalar Ionic CLI global.
 
@@ -169,7 +169,8 @@ Ejemplo de registro con datos ficticios, reemplazando la contraseña localmente:
   "nombre": "Cliente de prueba",
   "correo": "cliente@example.invalid",
   "password": "CONTRASENA_LOCAL_DE_EJEMPLO",
-  "password_confirmation": "CONTRASENA_LOCAL_DE_EJEMPLO"
+  "password_confirmation": "CONTRASENA_LOCAL_DE_EJEMPLO",
+  "acepta_terminos": true
 }
 ```
 
@@ -215,11 +216,32 @@ La suite PHPUnit usa SQLite **solo en memoria y para pruebas**; no reemplaza la 
 
 ## Estado y colaboración
 
-Sprint 2 incluye autenticación por rol, navegación base, lectura de catálogos y cotización preliminar. Los pedidos completos corresponden al Sprint 3 y la gestión administrativa completa al Sprint 4. No se presentan como terminados. WhatsApp conserva el número de ejemplo y está desactivado hasta configurarlo.
+El proyecto incluye autenticación Sanctum por rol, recuperación de contraseña por correo, catálogos, cotizaciones, pedidos y seguimiento, perfil, reportes y valoraciones, además de gestión administrativa. Solo el usuario con `id_usuario=1` y rol Administrador puede crear otros administradores. La creación inicial debe garantizar ese ID mediante el proceso de confianza de configuración local; el sistema no promueve automáticamente cuentas existentes.
+
+WhatsApp conserva el número de ejemplo y está desactivado hasta configurarlo. Completar los datos legales del negocio antes de publicar. La compilación web no sustituye las pruebas en dispositivos Android/iOS.
 
 - [Guía de contribución](CONTRIBUTING.md)
 - [Flujo Git](docs/FLUJO_GIT.md)
-- [Auditoría y preparación local](GITHUB_PREPARACION.md)
 - [Evidencias del Sprint 2](Api-Rest/SPRINT2_AVANCES.md)
 
 Nunca versionar `.env`, bases de datos, dumps, tokens, claves privadas, logs ni dependencias instaladas. La revisión del primer commit debe comprobar también las exclusiones; un repositorio privado no sustituye esa revisión.
+
+
+## Inicio con un clic en Windows y acceso por Wi-Fi
+
+Después de instalar dependencias, configurar `.env`, generar APP_KEY y ejecutar migraciones, abre **SwiftSite Clean.bat** desde la raíz. El lanzador llama a `scripts/start-local.ps1`, comprueba herramientas, dependencias y puertos, y permite elegir:
+
+- **1 — Local:** las aplicaciones solo escuchan en `127.0.0.1`.
+- **2 — Red Wi-Fi:** escucha en `0.0.0.0`, detecta la IPv4 y muestra enlaces para clientes y administradores. Si hay varios adaptadores solicita elegir la IP.
+
+También puedes ejecutar `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local.ps1 -Mode lan` desde la raíz. La API, Vue y Ionic se inician en segundo plano; el lanzador muestra dónde consultar los logs temporales. Espera a que los frontends terminen de compilar. Pulsa Enter en el lanzador para detener sus tres servicios y procesos hijos.
+
+El modo de red configura URL de API y CORS en los procesos sin editar `.env`; Ionic usa el hostname del navegador en los puertos de desarrollo 8100/4200. MySQL debe iniciarse previamente: el lanzador no instala dependencias, crea usuarios ni ejecuta migraciones. Si un puerto está ocupado, cierra el servidor anterior y vuelve a ejecutar. Permite TCP 8000, 5173 y 8100 únicamente en el perfil privado del firewall; todos deben estar en la misma red. La IP puede cambiar al reconectar el equipo.
+
+Este es un entorno de desarrollo para una red de confianza. Para acceso por Internet utiliza un despliegue con HTTPS; no redirijas estos puertos desde el router.
+
+## Correo y recuperación de acceso
+
+En `Api-Rest/.env`, completa las variables SMTP de `.env.example`. Para Gmail usa tu correo completo y una contraseña de aplicación de Google con verificación en dos pasos habilitada. El remitente debe coincidir con la cuenta autorizada. No uses la contraseña habitual ni subas `.env` al repositorio.
+
+Ejecuta `php artisan config:clear` y reinicia Laravel tras cambiar el correo. La recuperación y activación requieren SMTP disponible: no envían códigos usando `log` ni `array`. El código de recuperación caduca en 30 minutos, es de un solo uso y revoca las sesiones anteriores al cambiar la contraseña. Más detalles y endpoints en [API.md](Api-Rest/API.md).

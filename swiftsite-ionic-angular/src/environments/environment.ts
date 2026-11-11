@@ -1,3 +1,5 @@
-// Navegador local. En Android Emulator usar http://10.0.2.2:8000/api;
-// en un dispositivo fisico usar la IP LAN o el dominio HTTPS del backend.
-export const environment = { apiUrl: 'http://127.0.0.1:8000/api' };
+// En desarrollo web, sigue la IP con la que se abre Ionic (local o Wi-Fi).
+// Para despliegue o Android, configura una URL HTTPS alcanzable antes de compilar.
+const developmentWeb = typeof window !== 'undefined' && ['8100', '4200'].includes(window.location.port);
+const host = developmentWeb ? window.location.hostname : '127.0.0.1';
+export const environment = { apiUrl: `http://${host}:8000/api` };
