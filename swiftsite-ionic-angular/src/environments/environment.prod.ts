@@ -1,3 +1,4 @@
 export const environment = {
-  apiUrl: 'https://URL-DE-LA-API.onrender.com/api'
+  production: true,
+  apiUrl: 'https://swiftsite-clean-api.onrender.com/api'
 };
