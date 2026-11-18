@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "ng": "ng",
     "start": "ng serve",
-    "dev": "ng serve --port 8100 --open=false",
-    "build": "ng build",
-    "ionic:serve": "ng serve --open=false",
+    "build": "ng build --configuration production",
     "ionic:build": "ng build --configuration production",
+    "dev": "ng serve --port 8100 --open=false",
+    "ionic:serve": "ng serve --open=false",
     "test": "node --test tests/*.test.mjs",
     "type-check": "tsc --noEmit -p tsconfig.app.json"
   },
