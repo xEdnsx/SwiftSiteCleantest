@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             CategoriasServicioSeeder::class,
             ZonasCoberturaSeeder::class,
             TarifasItemsSeeder::class,
+            AdministradoresSeeder::class,
         ]);
     }
 }

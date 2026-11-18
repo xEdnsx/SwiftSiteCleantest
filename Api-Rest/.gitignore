@@ -18,6 +18,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/admin-credentials-*.json
+/storage/admin-credentials-*.txt
 /vendor
 Homestead.json
 Homestead.yaml
