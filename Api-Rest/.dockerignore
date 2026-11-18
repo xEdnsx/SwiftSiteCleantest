@@ -15,6 +15,5 @@ swiftsite_clean
 .sprint2
 Dockerfile
 .dockerignore
-docker
 npm-debug.log
 yarn-error.log
